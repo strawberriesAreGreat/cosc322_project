@@ -6,7 +6,7 @@ https://cmps-people.ok.ubc.ca/yongg/teaching/cosc322/project-and-assignments/cos
 
 ## Schedule 
 
-### Monday, Jan 10: 
+### Monday, Jan 10: - [ ]
   Project Page Online
 ### Friday, Jan 14: 
   Team Information Due 
