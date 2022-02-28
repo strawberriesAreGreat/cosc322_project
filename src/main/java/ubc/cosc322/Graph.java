@@ -1,0 +1,274 @@
+package ubc.cosc322;
+
+import java.util.ArrayList;
+import java.util.List;
+
+public class Graph {
+
+    public static final int EMPTY = 0;
+    public static final int WHITE = 1;
+    public static final int BLACK = 2;
+    public static final int FIRE = 3;
+
+    List<Node> nodes;
+
+    public Graph(int[][] board) {
+        int size = board.length * board[0].length;
+        nodes = new ArrayList<>(size);
+
+        initializeGraph(board);
+
+    }
+
+    private void initializeGraph(int[][] board){
+
+        createNodes(board);
+
+        for(int i = 0; i < board.length; i++){
+            for(int j = 0; j < board[0].length; j++){
+                int index = i * board.length + j;
+
+                Node node = nodes.get(index);
+
+                //Connect north node
+                if(i - 1 >= 0){
+                    int north = index - board.length;
+                    Node northNode = nodes.get(north);
+                    addEdge(node, northNode, Edge.Direction.NORTH, northNode.value == EMPTY);
+                }
+
+                //Connect northeast node
+                if(i - 1 >= 0 && j + 1 < board[0].length){
+                    int northEast = index - board.length + 1;
+                    Node northEastNode = nodes.get(northEast);
+                    addEdge(node, northEastNode, Edge.Direction.NORTH_EAST, northEastNode.value == EMPTY);
+                }
+
+                //Connect east node
+                if(j + 1 < board[0].length){
+                    int east = index + 1;
+                    Node eastNode = nodes.get(east);
+                    addEdge(node, eastNode, Edge.Direction.EAST, eastNode.value == EMPTY);
+                }
+
+                //Connect southeast node
+                if(i + 1 < board.length && j + 1 < board[0].length){
+                    int southEast = index + board.length + 1;
+                    Node southEastNode = nodes.get(southEast);
+                    addEdge(node, southEastNode, Edge.Direction.SOUTH_EAST, southEastNode.value == EMPTY);
+                }
+
+                //Connect south node
+                if(i + 1 < board.length){
+                    int south = index + board.length;
+                    Node southNode = nodes.get(south);
+                    addEdge(node, southNode, Edge.Direction.SOUTH, southNode.value == EMPTY);
+                }
+
+                //Connect southwest node
+                if(i + 1 < board.length && j - 1 >= 0){
+                    int southWest = index + board.length - 1;
+                    Node southWestNode = nodes.get(southWest);
+                    addEdge(node, southWestNode, Edge.Direction.SOUTH_WEST, southWestNode.value == EMPTY);
+                }
+
+                //Connect west node
+                if(j - 1 >= 0){
+                    int west = index - 1;
+                    Node westNode = nodes.get(west);
+                    addEdge(node, westNode, Edge.Direction.WEST, westNode.value == EMPTY);
+                }
+
+                //Connect northwest node
+                if(i - 1 >= 0 && j - 1 >= 0){
+                    int northWest = index - board.length - 1;
+                    Node northWestNode = nodes.get(northWest);
+                    addEdge(node, northWestNode, Edge.Direction.NORTH_WEST, northWestNode.value == EMPTY);
+                }
+            }
+        }
+
+    }
+
+    private void createNodes(int[][] board){
+        for(int i = 0; i < board.length; i++){
+            for(int j = 0; j < board[0].length; j++){
+                int id = i * board.length + j;
+                Node n = new Node(id, board[i][j]);
+                nodes.add(n);
+            }
+        }
+    }
+
+    private void addEdge(Node n1, Node n2, Edge.Direction direction, boolean enabled){
+        n1.edges.add(new Edge(n2, direction, enabled));
+    }
+
+    private void updateGraph(){
+
+    }
+
+    @Override
+    public String toString(){
+        StringBuilder sb = new StringBuilder();
+
+        for(Node n : nodes){
+            sb.append("Node: ").append(n.id).append(" {").append(n.value).append("}").append(" Connected to: ");
+            for(Edge e : n.edges) {
+                if(e.enabled)
+                    sb.append(e.other.id).append(" ").append(e.direction).append(", ");
+            }
+            sb.append("\n");
+        }
+
+        return sb.toString();
+    }
+
+    public static void main(String[] args) {
+        int[][] board = {
+                {0, 1, 0},
+                {0, 0, 0},
+                {0, 0, 2}
+        };
+
+        Graph g = new Graph(board);
+
+        System.out.println(g);
+
+    }
+
+    private static class Edge {
+        public enum Direction {
+            NORTH("North"),
+            NORTH_EAST("North East"),
+            EAST("East"),
+            SOUTH_EAST("South East"),
+            SOUTH("South"),
+            SOUTH_WEST("South West"),
+            WEST("West"),
+            NORTH_WEST("North West");
+
+            public final String label;
+
+            Direction(String direction) {
+                this.label = direction;
+            }
+
+            @Override
+            public String toString(){
+                return label;
+            }
+        }
+
+        private final Node other;
+        private final Direction direction;
+        private boolean enabled;
+
+        public Edge(Node other, Direction direction, boolean enabled){
+            this.other = other;
+            this.direction = direction;
+            this.enabled = enabled;
+        }
+
+        @Override
+        public String toString(){
+            return "Value: "+ other.value + ", Direction: " + direction;
+        }
+
+        public Node getNode(){
+            return other;
+        }
+
+        public Direction getDirection() {
+            return direction;
+        }
+
+        public boolean isEnabled() {
+            return enabled;
+        }
+
+        public void setEnabled(boolean enabled) {
+            this.enabled = enabled;
+        }
+
+
+
+
+    }
+
+    private static class Node {
+
+        private int id;
+        private int value;
+
+        private int qdist1;
+        private int qdist2;
+        private int kdist1;
+        private int kdist2;
+
+        private final List<Edge> edges;
+
+        public Node(int id, int value){
+            this.id = id;
+            setValue(value);
+
+            //Starting distance is "infinity"
+            qdist1 = Integer.MAX_VALUE;
+            qdist2 = Integer.MAX_VALUE;
+            kdist1 = Integer.MAX_VALUE;
+            kdist2 = Integer.MAX_VALUE;
+
+            edges = new ArrayList<>();
+        }
+
+        public int getValue() {
+            return value;
+        }
+
+        public void setValue(int value) {
+            if(value < EMPTY || value > FIRE){
+                System.out.println("Invalid node value.");
+                return;
+            }
+            this.value = value;
+        }
+
+        public int getQdist1() {
+            return qdist1;
+        }
+
+        public void setQdist1(int qdist1) {
+            this.qdist1 = qdist1;
+        }
+
+        public int getQdist2() {
+            return qdist2;
+        }
+
+        public void setQdist2(int qdist2) {
+            this.qdist2 = qdist2;
+        }
+
+        public int getKdist1() {
+            return kdist1;
+        }
+
+        public void setKdist1(int kdist1) {
+            this.kdist1 = kdist1;
+        }
+
+        public int getKdist2() {
+            return kdist2;
+        }
+
+        public void setKdist2(int kdist2) {
+            this.kdist2 = kdist2;
+        }
+
+        public List<Edge> getEdges() {
+            return edges;
+        }
+
+    }
+
+}
