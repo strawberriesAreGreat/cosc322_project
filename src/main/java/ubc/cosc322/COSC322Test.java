@@ -2,9 +2,11 @@
 package ubc.cosc322;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.Map;
 
 import ygraph.ai.smartfox.games.BaseGameGUI;
+import ygraph.ai.smartfox.games.BoardGameModel;
 import ygraph.ai.smartfox.games.GameClient;
 import ygraph.ai.smartfox.games.GameMessage;
 import ygraph.ai.smartfox.games.GamePlayer;
@@ -81,11 +83,32 @@ public class COSC322Test extends GamePlayer{
 	
     	//For a detailed description of the message types and format, 
     	//see the method GamePlayer.handleGameMessage() in the game-client-api document.
+    	Map<String, Object> detailsTest = new HashMap<String, Object>();
 
+        ArrayList<Integer> curr = new ArrayList<>();
+        curr.add(1);
+        curr.add(4);
+
+        ArrayList<Integer> next = new ArrayList<>();
+        next.add(1);
+        next.add(1);
+
+        ArrayList<Integer> arrow = new ArrayList<>();
+        arrow.add(10);
+        arrow.add(10);
+
+        detailsTest.put(AmazonsGameMessage.PLAYER_BLACK, curr);
+        detailsTest.put(AmazonsGameMessage.QUEEN_POS_NEXT, next);
+        detailsTest.put(AmazonsGameMessage.ARROW_POS, arrow);
+        
+        System.out.println(msgDetails);   
 		switch (messageType) {
 			case GameMessage.GAME_STATE_BOARD -> gameGui.setGameState((ArrayList<Integer>) msgDetails.get(AmazonsGameMessage.GAME_STATE));
-			case GameMessage.GAME_ACTION_MOVE -> gameGui.updateGameState(msgDetails);
-			default -> {
+			case GameMessage.GAME_ACTION_MOVE ->  //gameGui.updateGameState(msgDetails);
+													gameGui.updateGameState(detailsTest);
+				
+			
+				default -> {
 				System.out.println(messageType);
 				System.out.println(msgDetails);
 			}
