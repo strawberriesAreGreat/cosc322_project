@@ -98,7 +98,7 @@ public class COSC322Test extends GamePlayer{
         arrow.add(10);
 
         detailsTest.put(AmazonsGameMessage.PLAYER_BLACK, curr);
-        detailsTest.put(AmazonsGameMessage.QUEEN_POS_NEXT, next);
+        detailsTest.put(AmazonsGameMessage.Queen_POS_NEXT, next);
         detailsTest.put(AmazonsGameMessage.ARROW_POS, arrow);
         
         System.out.println(msgDetails);   
