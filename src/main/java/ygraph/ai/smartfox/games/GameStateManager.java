@@ -9,6 +9,20 @@ import ygraph.ai.smartfox.games.BaseGameGUI;
 
 public class GameStateManager{
 
+	public static int[][] INITIAL_BOARD_STATE = {
+			{0, 0, 0, 2, 0, 0, 2, 0, 0, 0},
+			{0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
+			{0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
+			{2, 0, 0, 0, 0, 0, 0, 0, 0, 2},
+			{0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
+			{0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
+			{1, 0, 0, 0, 0, 0, 0, 0, 0, 1},
+			{0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
+			{0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
+			{0, 0, 0, 1, 0, 0, 1, 0, 0, 0},
+	};
+
+
 	public static void timer() { // already a class for this
 		// creates new instance of timer and sets a time limit
 		int timeLimit = 20000;

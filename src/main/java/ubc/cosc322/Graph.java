@@ -10,13 +10,45 @@ public class Graph {
     public static final int BLACK = 2;
     public static final int FIRE = 3;
 
-    List<Node> nodes;
+    private final List<Node> nodes;
+    private final int rowLength;
 
     public Graph(int[][] board) {
-        int size = board.length * board[0].length;
-        nodes = new ArrayList<>(size);
+        rowLength = board.length;
+
+        nodes = new ArrayList<>(rowLength * board[0].length);
 
         initializeGraph(board);
+
+    }
+
+    public void updateGraph(int currPosX, int currPosY, int nextPosX, int nextPosY, int arrowPosX, int arrowPosY, int player){
+
+        //Set current to empty
+        int currIndex = currPosX * rowLength + currPosY;
+        Node currNode = nodes.get(currIndex);
+        currNode.setValue(EMPTY);
+
+        //Enable edges for all connected nodes
+        toggleConnectedNodeEdges(currNode, true);
+
+        //Set next to player
+        int nextIndex = nextPosX * rowLength + nextPosY;
+        Node nextNode = nodes.get(nextIndex);
+        nextNode.setValue(player);
+
+        //Disable edges for all connected nodes
+        toggleConnectedNodeEdges(nextNode, false);
+
+        //Set arrow to arrow
+        int arrowIndex = arrowPosX * rowLength + arrowPosY;
+        Node arrowNode = nodes.get(arrowIndex);
+        arrowNode.setValue(FIRE);
+
+        //Disable edges for all connected nodes
+        toggleConnectedNodeEdges(arrowNode, false);
+
+        updateDistances();
 
     }
 
@@ -24,6 +56,7 @@ public class Graph {
 
         createNodes(board);
 
+        //Connect nodes to their neighbors
         for(int i = 0; i < board.length; i++){
             for(int j = 0; j < board[0].length; j++){
                 int index = i * board.length + j;
@@ -88,13 +121,15 @@ public class Graph {
             }
         }
 
+        updateDistances();
+
     }
 
     private void createNodes(int[][] board){
         for(int i = 0; i < board.length; i++){
             for(int j = 0; j < board[0].length; j++){
-                int id = i * board.length + j;
-                Node n = new Node(id, board[i][j]);
+                int index = i * board.length + j;
+                Node n = new Node(index, board[i][j]);
                 nodes.add(n);
             }
         }
@@ -104,8 +139,29 @@ public class Graph {
         n1.edges.add(new Edge(n2, direction, enabled));
     }
 
-    private void updateGraph(){
+    private void toggleConnectedNodeEdges(Node n, boolean toggle) {
+        for (Edge e : n.edges)
+            for (Edge e2 : e.other.edges)
+                if (e2.other == n)
+                    e2.enabled = toggle;
+    }
 
+    private void updateDistances(){
+        int size = nodes.size();
+        for(Node n : nodes){
+            if(n.isEmpty())
+                Heuristic.setDistances(n, size);
+            else {
+                n.setKdist1(Integer.MAX_VALUE);
+                n.setKdist2(Integer.MAX_VALUE);
+                n.setQdist1(Integer.MAX_VALUE);
+                n.setQdist2(Integer.MAX_VALUE);
+            }
+        }
+    }
+
+    public List<Node> getNodes(){
+        return nodes;
     }
 
     @Override
@@ -113,10 +169,10 @@ public class Graph {
         StringBuilder sb = new StringBuilder();
 
         for(Node n : nodes){
-            sb.append("Node: ").append(n.id).append(" {").append(n.value).append("}").append(" Connected to: ");
+            sb.append("Node: ").append(n.index).append(" {").append(n.value).append("}").append(" Connected to: ");
             for(Edge e : n.edges) {
                 if(e.enabled)
-                    sb.append(e.other.id).append(" ").append(e.direction).append(", ");
+                    sb.append(e.other.index).append(" ").append(e.direction).append(", ");
             }
             sb.append("\n");
         }
@@ -124,20 +180,7 @@ public class Graph {
         return sb.toString();
     }
 
-    public static void main(String[] args) {
-        int[][] board = {
-                {0, 1, 0},
-                {0, 0, 0},
-                {0, 0, 2}
-        };
-
-        Graph g = new Graph(board);
-
-        System.out.println(g);
-
-    }
-
-    private static class Edge {
+    public static class Edge {
         public enum Direction {
             NORTH("North"),
             NORTH_EAST("North East"),
@@ -158,6 +201,7 @@ public class Graph {
             public String toString(){
                 return label;
             }
+
         }
 
         private final Node other;
@@ -191,14 +235,11 @@ public class Graph {
             this.enabled = enabled;
         }
 
-
-
-
     }
 
-    private static class Node {
+    public static class Node {
 
-        private int id;
+        private final int index;
         private int value;
 
         private int qdist1;
@@ -208,8 +249,8 @@ public class Graph {
 
         private final List<Edge> edges;
 
-        public Node(int id, int value){
-            this.id = id;
+        public Node(int index, int value){
+            this.index = index;
             setValue(value);
 
             //Starting distance is "infinity"
@@ -220,6 +261,12 @@ public class Graph {
 
             edges = new ArrayList<>();
         }
+
+        public boolean isEmpty(){
+            return value == EMPTY;
+        }
+
+        public int getIndex() {return index;}
 
         public int getValue() {
             return value;
@@ -268,6 +315,28 @@ public class Graph {
         public List<Edge> getEdges() {
             return edges;
         }
+
+    }
+
+
+
+    public static void main(String[] args) {
+
+        int[][] testBoard = {
+                {1, 0, 2},
+                {0, 3, 0},
+                {0, 0, 0}
+        };
+
+        Graph g = new Graph(testBoard);
+        System.out.println(g + "\n");
+
+        int node = 8;
+
+        //System.out.println("Queen Distance to White: " + g.nodes.get(node).getQdist1());
+        System.out.println("King Distance to White (1): " + g.nodes.get(node).getKdist1());
+        //System.out.println("Queen Distance to Black: " + g.nodes.get(node).getQdist2());
+        System.out.println("King Distance to Black (2): " + g.nodes.get(node).getKdist2());
 
     }
 

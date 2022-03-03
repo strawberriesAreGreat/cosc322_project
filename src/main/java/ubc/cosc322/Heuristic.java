@@ -1,6 +1,6 @@
 package ubc.cosc322;
 
-import java.util.Random;
+import java.util.*;
 
 public class Heuristic {
 
@@ -10,7 +10,7 @@ public class Heuristic {
 
     private static Random heuristicRandom = new Random();
 
-    public static float calculateT(Square[][] board, int turn){
+    public static float calculateT(Graph board, int turn){
         float w = W(board);
 
         float f1 = F1(w);
@@ -23,12 +23,10 @@ public class Heuristic {
         float t1 = 0;
         float t2 = 0;
 
-        for(Square[] squares : board){
-            for(Square s : squares){
-                if(s.getValue() != Square.EMPTY) continue;
-                t1 += calculateTi(turn, s.getQdist1(), s.getQdist2());
-                t2 += calculateTi(turn, s.getKdist1(), s.getKdist2());
-            }
+        for(Graph.Node n : board.getNodes()){
+                if(n.getValue() != Graph.EMPTY) continue;
+                t1 += calculateTi(turn, n.getQdist1(), n.getQdist2());
+                t2 += calculateTi(turn, n.getKdist1(), n.getKdist2());
         }
 
         float c1 = C1(board);
@@ -39,17 +37,75 @@ public class Heuristic {
         double p3 = (f3/magnitude) * c2;
         double p4 = (f4/magnitude) * t2;
 
+        System.out.println("t1: " + t1 + ", t2: " + t2 + ", c1: " + c1 + ", c2: " + c2 + ", w: " + w + ", magnitude: " + magnitude);
+
         return (float) (p1 + p2 + p3 + p4);
     }
 
-    //TODO Needs implementation
-    public static int qDist(){
-        return 1+ heuristicRandom.nextInt(5);
-    }
+    public static void setDistances(Graph.Node start, int graphSize)
+    {
+        if(!start.isEmpty()) return;
 
-    //TODO Needs implementation
-    public static int kDist(){
-        return 1+ heuristicRandom.nextInt(10);
+        Queue<Graph.Node> q = new LinkedList<>();
+        Set<Integer> visited = new HashSet<>();
+        Graph.Edge.Direction[] previousDir = new Graph.Edge.Direction[graphSize];
+        int[] numTurns = new int[graphSize];
+
+        for(int i = 0; i < graphSize; i++){
+            numTurns[i] = 0;
+        }
+
+        q.add(start);
+
+        //Keep track of if the distances for white and black have been set
+        boolean dist1 = false;
+        boolean dist2 = false;
+
+        int dist = 1;
+        while(!dist1 || !dist2){
+
+            //If we've iterated through all the reachable nodes
+            //and haven't set distances yet then set them to infinity and return
+            if(q.isEmpty()){
+                if(!dist1) {
+                    start.setKdist1(Integer.MAX_VALUE);
+                    start.setQdist1(Integer.MAX_VALUE);
+                }
+                if(!dist2) {
+                    start.setKdist2(Integer.MAX_VALUE);
+                    start.setQdist2(Integer.MAX_VALUE);
+                }
+                return;
+            }
+
+            Graph.Node u = q.poll();
+            for(Graph.Edge e : u.getEdges()){
+                Graph.Node v = e.getNode();
+                int index = v.getIndex();
+
+                if(e.getDirection() != previousDir[index]){
+                    numTurns[index]++;
+                    previousDir[index] = e.getDirection();
+                }
+
+                //If the node is the player we want return the distance
+                if(v.getValue() == Graph.WHITE && !dist1) {
+                    start.setKdist1(dist);
+                    start.setQdist1(numTurns[index]);
+                    dist1 = true;
+                }
+                else if(v.getValue() == Graph.BLACK && !dist2) {
+                    start.setKdist2(dist);
+                    start.setQdist2(numTurns[index]);
+                    dist2 = true;
+                }
+                //Add the node to the queue if it hasn't been visited & is empty
+                else if(!visited.contains(index) && v.isEmpty())
+                    q.add(v);
+            }
+            visited.add(u.getIndex());
+            dist++;
+        }
     }
 
     private static float calculateTi(int player, int dist1, int dist2){
@@ -65,37 +121,30 @@ public class Heuristic {
         else return -1;
     }
 
-    private static float C1(Square[][] board){
+    private static float C1(Graph board){
         float sum = 0;
-        for (Square[] squares : board) {
-            for (Square s : squares) {
-                sum += Math.pow(2, -s.getQdist1()) - Math.pow(2, -s.getQdist2());
-            }
+        for (Graph.Node n : board.getNodes()) {
+            sum += Math.pow(2, -n.getQdist1()) - Math.pow(2, -n.getQdist2());
         }
 
         return 2 * sum;
     }
 
-    private static float C2(Square[][] board){
+    private static float C2(Graph board){
         float sum = 0;
-        for (Square[] squares : board) {
-            for (Square s : squares) {
-                float difference = (s.getKdist2() - s.getKdist1()) / 6f;
-                sum += Math.min(1, Math.max(-1, difference));
-            }
+        for (Graph.Node n : board.getNodes()) {
+            float difference = (n.getKdist2() - n.getKdist1()) / 6f;
+            sum += Math.min(1, Math.max(-1, difference));
         }
 
         return sum;
     }
 
-    private static float W(Square[][] board){
+    private static float W(Graph board){
         float sum = 0;
-        for (Square[] squares : board) {
-            for (Square s : squares) {
-                sum += Math.pow(2, -Math.abs(s.getQdist1()-s.getQdist2()));
-            }
+        for (Graph.Node n: board.getNodes()) {
+            sum += Math.pow(2, -Math.abs(n.getQdist1()-n.getQdist2()));
         }
-
         return sum;
     }
 
@@ -126,43 +175,32 @@ public class Heuristic {
         return w;
     }
 
-    public static void main(String[] args) {
-        Square[][] board = new Square[3][3];
-
-        int n = 1000;
-        float avg = 0;
-        int player = PLAYER_1;
-
-        for(int x = 0; x < n; x++) {
-            for (int i = 0; i < board.length; i++) {
-                for (int j = 0; j < board[0].length; j++) {
-                    Square s = new Square(Square.EMPTY);
-                    s.setQdist1(qDist());
-                    s.setQdist2(qDist());
-                    s.setKdist1(kDist());
-                    s.setKdist2(kDist());
-
-                    board[i][j] = s;
-                }
-            }
-            float t = calculateT(board, player);
-            player = player == PLAYER_1 ? PLAYER_2 : PLAYER_1;
-
-            avg += t;
-        }
-
-        avg = avg/n;
-
-        System.out.println("AVG T: " + avg);
-
-
-    }
-
-
-
-
-
-
-
+//    public static void main(String[] args) {
+//        Graph g = new Graph(GameStateManager.INITIAL_BOARD_STATE);
+//
+//        int n = 1000;
+//        float avg = 0;
+//        int player = PLAYER_1;
+//
+//        for(int x = 0; x < n; x++) {
+//            for (Graph.Node node : g.getNodes()) {
+//                node.setQdist1(qDist());
+//                node.setQdist2(qDist());
+//                node.setKdist1(kDist());
+//                node.setKdist2(kDist());
+//            }
+//
+//            float t = calculateT(g, player);
+//            player = player == PLAYER_1 ? PLAYER_2 : PLAYER_1;
+//
+//            avg += t;
+//        }
+//
+//        avg = avg/n;
+//
+//        System.out.println("AVG T: " + avg);
+//
+//
+//    }
 
 }
