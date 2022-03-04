@@ -4,15 +4,13 @@ import ygraph.ai.smartfox.games.GameStateManager;
 
 public class Heuristic {
 
-
-
     public static float calculateT(Graph board, GameStateManager.Tile turn){
-        float w = W(board);
+        float w = calculateW(board);
 
-        float f1 = F1(w);
-        float f2 = F2(w);
-        float f3 = F3(w);
-        float f4 = F4(w);
+        float f1 = function1(w);
+        float f2 = function2(w);
+        float f3 = function3(w);
+        float f4 = function4(w);
 
         double magnitude = Math.sqrt(f1*f1 + f2*f2 + f3*f3 + f4*f4);
 
@@ -25,8 +23,8 @@ public class Heuristic {
                 t2 += calculateTi(turn, n.getKdist1(), n.getKdist2());
         }
 
-        float c1 = C1(board);
-        float c2 = C2(board);
+        float c1 = calculateC1(board);
+        float c2 = calculateC2(board);
 
         double p1 = (f1/magnitude) * t1;
         double p2 = (f2/magnitude) * c1;
@@ -51,7 +49,7 @@ public class Heuristic {
         else return -1;
     }
 
-    private static float C1(Graph board){
+    private static float calculateC1(Graph board){
         float sum = 0;
         for (Graph.Node n : board.getNodes()) {
             sum += Math.pow(2, -n.getQdist1()) - Math.pow(2, -n.getQdist2());
@@ -60,7 +58,7 @@ public class Heuristic {
         return 2 * sum;
     }
 
-    private static float C2(Graph board){
+    private static float calculateC2(Graph board){
         float sum = 0;
         for (Graph.Node n : board.getNodes()) {
             float difference = (n.getKdist2() - n.getKdist1()) / 6f;
@@ -70,7 +68,7 @@ public class Heuristic {
         return sum;
     }
 
-    private static float W(Graph board){
+    private static float calculateW(Graph board){
         float sum = 0;
         for (Graph.Node n: board.getNodes()) {
             sum += Math.pow(2, -Math.abs(n.getQdist1()-n.getQdist2()));
@@ -84,53 +82,46 @@ public class Heuristic {
 
     //Increasingly important during the game
     //Gives good estimates of expected territory shortly before filling phase
-    private static float F1(float w){
+    private static float function1(float w){
         return w;
     }
 
     //Supports positional play in the opening
     //Smooths transition between the beginning and later phases of the game
-    private static float F2(float w){
+    private static float function2(float w){
         return w;
     }
 
     //Supports positional play in the opening
     //Smooths transition between the beginning and later phases of the game
-    private static float F3(float w){
+    private static float function3(float w){
         return w;
     }
 
     //Most important at the beginning of the game
-    private static float F4(float w){
+    private static float function4 (float w){
         return w;
     }
 
-//    public static void main(String[] args) {
-//        Graph g = new Graph(GameStateManager.INITIAL_BOARD_STATE);
-//
-//        int n = 1000;
-//        float avg = 0;
-//        int player = PLAYER_1;
-//
-//        for(int x = 0; x < n; x++) {
-//            for (Graph.Node node : g.getNodes()) {
-//                node.setQdist1(qDist());
-//                node.setQdist2(qDist());
-//                node.setKdist1(kDist());
-//                node.setKdist2(kDist());
-//            }
-//
-//            float t = calculateT(g, player);
-//            player = player == PLAYER_1 ? PLAYER_2 : PLAYER_1;
-//
-//            avg += t;
-//        }
-//
-//        avg = avg/n;
-//
-//        System.out.println("AVG T: " + avg);
-//
-//
-//    }
+    public static void main(String[] args) {
+        Graph g = new Graph(GameStateManager.INITIAL_BOARD_STATE);
+
+        int n = 1000;
+        float avg = 0;
+        GameStateManager.Tile player = GameStateManager.Tile.WHITE;
+
+        for(int x = 0; x < n; x++) {
+            float t = calculateT(g, player);
+            player = player == GameStateManager.Tile.WHITE ? GameStateManager.Tile.BLACK : GameStateManager.Tile.WHITE;
+
+            avg += t;
+        }
+
+        avg = avg/n;
+
+        System.out.println("AVG T: " + avg);
+
+
+    }
 
 }
