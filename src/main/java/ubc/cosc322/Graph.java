@@ -2,6 +2,7 @@ package ubc.cosc322;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 
 public class Graph {
 
@@ -150,7 +151,7 @@ public class Graph {
         int size = nodes.size();
         for(Node n : nodes){
             if(n.isEmpty())
-                Heuristic.setDistances(n, size);
+                Distance.setDistances(n);
             else {
                 n.setKdist1(Integer.MAX_VALUE);
                 n.setKdist2(Integer.MAX_VALUE);
@@ -216,7 +217,7 @@ public class Graph {
 
         @Override
         public String toString(){
-            return "Value: "+ other.value + ", Direction: " + direction;
+            return "Index:" + other.index + ", Value: "+ other.value + ", Direction: " + direction;
         }
 
         public Node getNode(){
@@ -316,6 +317,11 @@ public class Graph {
             return edges;
         }
 
+        @Override
+        public boolean equals(Object o) {
+            return o instanceof Node n && n.index == index;
+        }
+
     }
 
 
@@ -323,20 +329,22 @@ public class Graph {
     public static void main(String[] args) {
 
         int[][] testBoard = {
-                {1, 0, 2},
-                {0, 3, 0},
-                {0, 0, 0}
+                {0, 3, 0, 0, 1},
+                {0, 3, 0, 3, 3},
+                {0, 3, 0, 0, 0},
+                {0, 3, 0, 3, 0},
+                {0, 0, 3, 2, 0}
         };
 
         Graph g = new Graph(testBoard);
-        System.out.println(g + "\n");
+        //System.out.println(g + "\n");
 
-        int node = 8;
+        int node = 0;
 
         //System.out.println("Queen Distance to White: " + g.nodes.get(node).getQdist1());
-        System.out.println("King Distance to White (1): " + g.nodes.get(node).getKdist1());
+        System.out.println("King Distance from node " + node + " to White (1): " + g.nodes.get(node).getKdist1());
         //System.out.println("Queen Distance to Black: " + g.nodes.get(node).getQdist2());
-        System.out.println("King Distance to Black (2): " + g.nodes.get(node).getKdist2());
+        System.out.println("King Distance from node " + node + " to Black (2): " + g.nodes.get(node).getKdist2());
 
     }
 
