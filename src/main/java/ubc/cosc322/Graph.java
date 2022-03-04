@@ -1,15 +1,11 @@
 package ubc.cosc322;
 
+import ygraph.ai.smartfox.games.GameStateManager;
+
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Objects;
 
 public class Graph {
-
-    public static final int EMPTY = 0;
-    public static final int WHITE = 1;
-    public static final int BLACK = 2;
-    public static final int FIRE = 3;
 
     private final List<Node> nodes;
     private final int rowLength;
@@ -23,12 +19,14 @@ public class Graph {
 
     }
 
-    public void updateGraph(int currPosX, int currPosY, int nextPosX, int nextPosY, int arrowPosX, int arrowPosY, int player){
+    public void updateGraph(int currPosX, int currPosY, int nextPosX, int nextPosY, int arrowPosX, int arrowPosY, GameStateManager.Tile player){
+
+        if(!player.isPlayer()) return;
 
         //Set current to empty
         int currIndex = currPosX * rowLength + currPosY;
         Node currNode = nodes.get(currIndex);
-        currNode.setValue(EMPTY);
+        currNode.setValue(GameStateManager.Tile.EMPTY);
 
         //Enable edges for all connected nodes
         toggleConnectedNodeEdges(currNode, true);
@@ -44,7 +42,7 @@ public class Graph {
         //Set arrow to arrow
         int arrowIndex = arrowPosX * rowLength + arrowPosY;
         Node arrowNode = nodes.get(arrowIndex);
-        arrowNode.setValue(FIRE);
+        arrowNode.setValue(GameStateManager.Tile.FIRE);
 
         //Disable edges for all connected nodes
         toggleConnectedNodeEdges(arrowNode, false);
@@ -68,56 +66,56 @@ public class Graph {
                 if(i - 1 >= 0){
                     int north = index - board.length;
                     Node northNode = nodes.get(north);
-                    addEdge(node, northNode, Edge.Direction.NORTH, northNode.value == EMPTY);
+                    addEdge(node, northNode, Edge.Direction.NORTH, northNode.value.isEmpty());
                 }
 
                 //Connect northeast node
                 if(i - 1 >= 0 && j + 1 < board[0].length){
                     int northEast = index - board.length + 1;
                     Node northEastNode = nodes.get(northEast);
-                    addEdge(node, northEastNode, Edge.Direction.NORTH_EAST, northEastNode.value == EMPTY);
+                    addEdge(node, northEastNode, Edge.Direction.NORTH_EAST, northEastNode.value.isEmpty());
                 }
 
                 //Connect east node
                 if(j + 1 < board[0].length){
                     int east = index + 1;
                     Node eastNode = nodes.get(east);
-                    addEdge(node, eastNode, Edge.Direction.EAST, eastNode.value == EMPTY);
+                    addEdge(node, eastNode, Edge.Direction.EAST, eastNode.value.isEmpty());
                 }
 
                 //Connect southeast node
                 if(i + 1 < board.length && j + 1 < board[0].length){
                     int southEast = index + board.length + 1;
                     Node southEastNode = nodes.get(southEast);
-                    addEdge(node, southEastNode, Edge.Direction.SOUTH_EAST, southEastNode.value == EMPTY);
+                    addEdge(node, southEastNode, Edge.Direction.SOUTH_EAST, southEastNode.value.isEmpty());
                 }
 
                 //Connect south node
                 if(i + 1 < board.length){
                     int south = index + board.length;
                     Node southNode = nodes.get(south);
-                    addEdge(node, southNode, Edge.Direction.SOUTH, southNode.value == EMPTY);
+                    addEdge(node, southNode, Edge.Direction.SOUTH, southNode.value.isEmpty());
                 }
 
                 //Connect southwest node
                 if(i + 1 < board.length && j - 1 >= 0){
                     int southWest = index + board.length - 1;
                     Node southWestNode = nodes.get(southWest);
-                    addEdge(node, southWestNode, Edge.Direction.SOUTH_WEST, southWestNode.value == EMPTY);
+                    addEdge(node, southWestNode, Edge.Direction.SOUTH_WEST, southWestNode.value.isEmpty());
                 }
 
                 //Connect west node
                 if(j - 1 >= 0){
                     int west = index - 1;
                     Node westNode = nodes.get(west);
-                    addEdge(node, westNode, Edge.Direction.WEST, westNode.value == EMPTY);
+                    addEdge(node, westNode, Edge.Direction.WEST, westNode.value.isEmpty());
                 }
 
                 //Connect northwest node
                 if(i - 1 >= 0 && j - 1 >= 0){
                     int northWest = index - board.length - 1;
                     Node northWestNode = nodes.get(northWest);
-                    addEdge(node, northWestNode, Edge.Direction.NORTH_WEST, northWestNode.value == EMPTY);
+                    addEdge(node, northWestNode, Edge.Direction.NORTH_WEST, northWestNode.value.isEmpty());
                 }
             }
         }
@@ -130,7 +128,7 @@ public class Graph {
         for(int i = 0; i < board.length; i++){
             for(int j = 0; j < board[0].length; j++){
                 int index = i * board.length + j;
-                Node n = new Node(index, board[i][j]);
+                Node n = new Node(index, GameStateManager.Tile.valueOf(board[i][j]));
                 nodes.add(n);
             }
         }
@@ -241,7 +239,7 @@ public class Graph {
     public static class Node {
 
         private final int index;
-        private int value;
+        private GameStateManager.Tile value;
 
         private int qdist1;
         private int qdist2;
@@ -250,7 +248,7 @@ public class Graph {
 
         private final List<Edge> edges;
 
-        public Node(int index, int value){
+        public Node(int index, GameStateManager.Tile value){
             this.index = index;
             setValue(value);
 
@@ -264,20 +262,16 @@ public class Graph {
         }
 
         public boolean isEmpty(){
-            return value == EMPTY;
+            return value == GameStateManager.Tile.EMPTY;
         }
 
         public int getIndex() {return index;}
 
-        public int getValue() {
+        public GameStateManager.Tile getValue() {
             return value;
         }
 
-        public void setValue(int value) {
-            if(value < EMPTY || value > FIRE){
-                System.out.println("Invalid node value.");
-                return;
-            }
+        public void setValue(GameStateManager.Tile value) {
             this.value = value;
         }
 

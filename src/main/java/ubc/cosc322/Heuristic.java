@@ -1,16 +1,12 @@
 package ubc.cosc322;
 
-import java.util.*;
+import ygraph.ai.smartfox.games.GameStateManager;
 
 public class Heuristic {
 
-    //TODO Move to appropriate class
-    public static final int PLAYER_1 = 1;
-    public static final int PLAYER_2 = 2;
 
-    private static Random heuristicRandom = new Random();
 
-    public static float calculateT(Graph board, int turn){
+    public static float calculateT(Graph board, GameStateManager.Tile turn){
         float w = W(board);
 
         float f1 = F1(w);
@@ -24,7 +20,7 @@ public class Heuristic {
         float t2 = 0;
 
         for(Graph.Node n : board.getNodes()){
-                if(n.getValue() != Graph.EMPTY) continue;
+                if(!n.getValue().isEmpty()) continue;
                 t1 += calculateTi(turn, n.getQdist1(), n.getQdist2());
                 t2 += calculateTi(turn, n.getKdist1(), n.getKdist2());
         }
@@ -42,13 +38,13 @@ public class Heuristic {
         return (float) (p1 + p2 + p3 + p4);
     }
 
-    private static float calculateTi(int player, int dist1, int dist2){
+    private static float calculateTi(GameStateManager.Tile player, int dist1, int dist2){
         float k = 1/5f;
 
         //n = m = infinity
         if(dist1 == Integer.MAX_VALUE && dist2 == Integer.MAX_VALUE) return 0;
         //n = m < infinity
-        else if(dist1 == dist2) return player == PLAYER_1 ? k : -k;
+        else if(dist1 == dist2) return player == GameStateManager.Tile.WHITE ? k : -k;
         //n < m (player 1 is closer)
         else if(dist1 < dist2) return 1;
         //n > m (player 2 is closer)

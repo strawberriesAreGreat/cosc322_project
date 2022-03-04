@@ -1,13 +1,42 @@
 package ygraph.ai.smartfox.games;
 
-import java.util.ArrayList;
-import java.util.Map;
-import java.util.Timer;
-import java.util.TimerTask;
+import java.util.*;
 
-import ygraph.ai.smartfox.games.BaseGameGUI;
 
 public class GameStateManager{
+
+	public enum Tile {
+		EMPTY(0),
+		WHITE(1),
+		BLACK(2),
+		FIRE(3);
+
+		public final int id;
+		private static final Map<Integer, Tile> map = new HashMap<>();
+
+		Tile(int id) {
+			this.id = id;
+		}
+
+		static {
+			for (Tile tile : Tile.values()) {
+				map.put(tile.id, tile);
+			}
+		}
+
+		public static Tile valueOf(int id){
+			return map.get(id);
+		}
+
+		public boolean isEmpty(){
+			return this == EMPTY;
+		}
+
+		public boolean isPlayer(){
+			return this == WHITE || this == BLACK;
+		}
+
+	}
 
 	public static int[][] INITIAL_BOARD_STATE = {
 			{0, 0, 0, 2, 0, 0, 2, 0, 0, 0},

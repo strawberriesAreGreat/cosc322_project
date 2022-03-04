@@ -1,5 +1,7 @@
 package ubc.cosc322;
 
+import ygraph.ai.smartfox.games.GameStateManager;
+
 import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.Queue;
@@ -44,12 +46,12 @@ public class Distance {
                 int index = v.getIndex();
 
                 //If the node is the player we want return the distance
-                if(v.getValue() == Graph.WHITE && !dist1) {
+                if(v.getValue() == GameStateManager.Tile.WHITE && !dist1) {
                     start.setKdist1(dist);
                     start.setQdist1(0);
                     dist1 = true;
                 }
-                else if(v.getValue() == Graph.BLACK && !dist2) {
+                else if(v.getValue() == GameStateManager.Tile.BLACK && !dist2) {
                     start.setKdist2(dist);
                     start.setQdist2(0);
                     dist2 = true;
