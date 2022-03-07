@@ -6,34 +6,16 @@ import java.util.Timer;
 import java.util.TimerTask;
 
 import ygraph.ai.smartfox.games.BaseGameGUI;
+import ygraph.ai.smartfox.games.amazons.AmazonsGameMessage;
 
 public class GameStateManager{
 
-	public static void timer() { // already a class for this
-		// creates new instance of timer and sets a time limit
-		int timeLimit = 20000;
-		Timer time = new Timer();
-		
-		
-		// timer that should make the move in 20 seconds
-		time.schedule(new TimerTask() {
-			@Override
-			public void run() {
-				// make moves during this time (call MakeMove method)
-			}
-			
-		}, timeLimit);
-		
-		// cancels the timer once finished
-		time.cancel();	
-	}
-		
-	
 	// takes the message Details that are stored in the array and retrieves the position of:
 	// Current X and Y of Queen
+	// Should have mapping to queen_pos_curr, queen_pos_next, and arrow_pos
 	public int getQueenXCurrent (Map<String, Object> msgDetails) {
 		ArrayList<Integer> queenpos = new ArrayList<>();
-		queenpos = (ArrayList<Integer>) msgDetails.get("queen-position-current");
+		queenpos =(ArrayList<Integer>) msgDetails.get("queen-position-current");
 		
 		int x = queenpos.get(0);
 		
@@ -115,30 +97,16 @@ public class GameStateManager{
 	
 	
 	// Makes a Move and then updates the GUI
-	public void MakeMove (Map<String, Object> msgDetails, BaseGameGUI gameGui) {
-		//gets the string representation of the play
-		String move = GameMessage.GAME_ACTION_MOVE;
+	public void MakeMove (Map<String, Object> msgDetails, BaseGameGUI gameGui, GameClient gameClient, ArrayList<Integer> queencurrent, ArrayList<Integer> queennext, ArrayList<Integer> arrowposition) {
+		//as long as we can make a new move...
+		if (GameMessage.GAME_ACTION_MOVE.equals("cosc322.game-action.move")) {
+			gameClient.sendMoveMessage(queencurrent, queennext, arrowposition); //send game info to server
+			gameGui.updateGameState(msgDetails); //update gui
+			
+		}
 		
-		// TODO: should add the new position here if the coordinate is free
-		
-		GameStateManager.updateGui(msgDetails, gameGui);
 	}
-	
-	// Updates the GUI
-	public static void updateGui (Map<String, Object> msgDetails, BaseGameGUI gameGui) {
-		gameGui.updateGameState(msgDetails);
-	}
-	
-	// Checks for an open position
-	public boolean openPos (int x, int y) {
-		ArrayList<Integer> coor = new ArrayList<>();
-		coor.add(x);
-		coor.add(y);
-		
-		// TODO: check if this coordinate is occupied
-		
-		return false;
-	}
+
 	
 
 }

@@ -1,3 +1,5 @@
+package ubc.cosc322;
+
 import java.util.ArrayList;
 import java.util.List;
 
@@ -24,13 +26,13 @@ public class Node<T> {
     }
 
     public boolean isLeaf() {
-        return this.children.size == 0;
+        return this.children.size() == 0;
     }
 
 
 //Setters
   public void setParent( Node<T> parent ) {
-        parent.addChild(this);
+        parent.appendChild(this);
         this.parent = parent;
     }
     public void setHeuristic(T heuristic) {

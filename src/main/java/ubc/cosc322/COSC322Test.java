@@ -10,6 +10,7 @@ import ygraph.ai.smartfox.games.BoardGameModel;
 import ygraph.ai.smartfox.games.GameClient;
 import ygraph.ai.smartfox.games.GameMessage;
 import ygraph.ai.smartfox.games.GamePlayer;
+import ygraph.ai.smartfox.games.GameStateManager;
 import ygraph.ai.smartfox.games.amazons.AmazonsGameMessage;
 
 /**
@@ -97,11 +98,14 @@ public class COSC322Test extends GamePlayer{
         arrow.add(10);
         arrow.add(10);
 
-        detailsTest.put(AmazonsGameMessage.PLAYER_BLACK, curr);
-        detailsTest.put(AmazonsGameMessage.Queen_POS_NEXT, next);
+        detailsTest.put(AmazonsGameMessage.QUEEN_POS_CURR, curr);
+        detailsTest.put(AmazonsGameMessage.QUEEN_POS_NEXT, next);
         detailsTest.put(AmazonsGameMessage.ARROW_POS, arrow);
         
-        System.out.println(msgDetails);   
+        System.out.println(detailsTest.get("queen-position-current")); 
+        this.gameClient.sendMoveMessage((ArrayList<Integer>) detailsTest.get("queen-position-current"),(ArrayList<Integer>) detailsTest.get("queen-position-next"), (ArrayList<Integer>) detailsTest.get("arrow-position"));
+        gameGui.updateGameState(detailsTest);
+        
 		switch (messageType) {
 			case GameMessage.GAME_STATE_BOARD -> gameGui.setGameState((ArrayList<Integer>) msgDetails.get(AmazonsGameMessage.GAME_STATE));
 			case GameMessage.GAME_ACTION_MOVE ->  //gameGui.updateGameState(msgDetails);
@@ -110,7 +114,7 @@ public class COSC322Test extends GamePlayer{
 			
 				default -> {
 				System.out.println(messageType);
-				System.out.println(msgDetails);
+				System.out.println(detailsTest);
 			}
 		}
     	    	
