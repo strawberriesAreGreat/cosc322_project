@@ -31,7 +31,7 @@ public class Heuristic {
         double p3 = (f3/magnitude) * c2;
         double p4 = (f4/magnitude) * t2;
 
-        System.out.println("t1: " + t1 + ", t2: " + t2 + ", c1: " + c1 + ", c2: " + c2 + ", w: " + w + ", magnitude: " + magnitude);
+        System.out.println("t1: " + t1 + ", t2: " + t2 + ", c1: " + c1 + ", c2: " + c2 + ", w: " + w + ", magnitude: " + magnitude + ", T: " + (p1 + p2 + p3 + p4));
 
         return (float) (p1 + p2 + p3 + p4);
     }

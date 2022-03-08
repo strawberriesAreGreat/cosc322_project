@@ -66,56 +66,56 @@ public class Graph {
                 if(i - 1 >= 0){
                     int north = index - board.length;
                     Node northNode = nodes.get(north);
-                    addEdge(node, northNode, Edge.Direction.NORTH, northNode.value.isEmpty());
+                    addEdge(node, northNode, Edge.Direction.NORTH, northNode.isEmpty());
                 }
 
                 //Connect northeast node
                 if(i - 1 >= 0 && j + 1 < board[0].length){
                     int northEast = index - board.length + 1;
                     Node northEastNode = nodes.get(northEast);
-                    addEdge(node, northEastNode, Edge.Direction.NORTH_EAST, northEastNode.value.isEmpty());
+                    addEdge(node, northEastNode, Edge.Direction.NORTH_EAST, northEastNode.isEmpty());
                 }
 
                 //Connect east node
                 if(j + 1 < board[0].length){
                     int east = index + 1;
                     Node eastNode = nodes.get(east);
-                    addEdge(node, eastNode, Edge.Direction.EAST, eastNode.value.isEmpty());
+                    addEdge(node, eastNode, Edge.Direction.EAST, eastNode.isEmpty());
                 }
 
                 //Connect southeast node
                 if(i + 1 < board.length && j + 1 < board[0].length){
                     int southEast = index + board.length + 1;
                     Node southEastNode = nodes.get(southEast);
-                    addEdge(node, southEastNode, Edge.Direction.SOUTH_EAST, southEastNode.value.isEmpty());
+                    addEdge(node, southEastNode, Edge.Direction.SOUTH_EAST, southEastNode.isEmpty());
                 }
 
                 //Connect south node
                 if(i + 1 < board.length){
                     int south = index + board.length;
                     Node southNode = nodes.get(south);
-                    addEdge(node, southNode, Edge.Direction.SOUTH, southNode.value.isEmpty());
+                    addEdge(node, southNode, Edge.Direction.SOUTH, southNode.isEmpty());
                 }
 
                 //Connect southwest node
                 if(i + 1 < board.length && j - 1 >= 0){
                     int southWest = index + board.length - 1;
                     Node southWestNode = nodes.get(southWest);
-                    addEdge(node, southWestNode, Edge.Direction.SOUTH_WEST, southWestNode.value.isEmpty());
+                    addEdge(node, southWestNode, Edge.Direction.SOUTH_WEST, southWestNode.isEmpty());
                 }
 
                 //Connect west node
                 if(j - 1 >= 0){
                     int west = index - 1;
                     Node westNode = nodes.get(west);
-                    addEdge(node, westNode, Edge.Direction.WEST, westNode.value.isEmpty());
+                    addEdge(node, westNode, Edge.Direction.WEST, westNode.isEmpty());
                 }
 
                 //Connect northwest node
                 if(i - 1 >= 0 && j - 1 >= 0){
                     int northWest = index - board.length - 1;
                     Node northWestNode = nodes.get(northWest);
-                    addEdge(node, northWestNode, Edge.Direction.NORTH_WEST, northWestNode.value.isEmpty());
+                    addEdge(node, northWestNode, Edge.Direction.NORTH_WEST, northWestNode.isEmpty());
                 }
             }
         }
@@ -218,14 +218,6 @@ public class Graph {
             return direction;
         }
 
-        public boolean isEnabled() {
-            return enabled;
-        }
-
-        public void setEnabled(boolean enabled) {
-            this.enabled = enabled;
-        }
-
     }
 
     public static class Node {
@@ -277,10 +269,8 @@ public class Graph {
         }
 
         public boolean isEmpty(){
-            return value == GameStateManager.Tile.EMPTY;
+            return value.isEmpty();
         }
-
-        public int getIndex() {return index;}
 
         public GameStateManager.Tile getValue() {
             return value;
@@ -323,10 +313,6 @@ public class Graph {
             this.kdist2 = kdist2;
         }
 
-        public List<Edge> getEdges() {
-            return edges;
-        }
-
         public Edge getEdgeInDirection(Edge.Direction dir){
             for(Edge e : edges){
                 if (e.getDirection() == dir && e.enabled) return e;
@@ -351,10 +337,10 @@ public class Graph {
 
         int[][] testBoard = {
                 {0, 0, 0, 0, 1},
-                {0, 3, 0, 0, 0},
-                {0, 3, 0, 0, 0},
+                {0, 0, 3, 3, 0},
                 {0, 3, 0, 3, 0},
-                {0, 0, 0, 2, 0}
+                {0, 3, 3, 0, 0},
+                {0, 0, 3, 2, 0}
         };
 
         Graph g = new Graph(testBoard);
