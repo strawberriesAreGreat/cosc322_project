@@ -22,6 +22,45 @@ class Test_Graph {
     }
 
     @Test
+    void test_copy(){
+        int[][] copyTestBoard = {
+                {0, 3},
+                {3, 1}
+        };
+
+        Graph original = new Graph(copyTestBoard);
+        Graph shallowCopy = original;
+        Graph deepCopy = Graph.copy(original);
+
+        Assertions.assertEquals(original, shallowCopy);
+        Assertions.assertNotEquals(original, deepCopy);
+
+        for(Graph.Node n : original.getNodes()){
+            Graph.Node nCopy = deepCopy.getNodes().get(n.getIndex());
+
+            Assertions.assertEquals(n.getIndex(), nCopy.getIndex());
+            Assertions.assertEquals(n.getValue(), nCopy.getValue());
+            Assertions.assertEquals(n.getKdist1(), nCopy.getKdist1());
+            Assertions.assertEquals(n.getKdist2(), nCopy.getKdist2());
+            Assertions.assertEquals(n.getQdist1(), nCopy.getQdist1());
+            Assertions.assertEquals(n.getQdist2(), nCopy.getQdist2());
+
+            Assertions.assertEquals(n.getEdges().size(), nCopy.getEdges().size());
+
+            for(int i = 0; i < n.getEdges().size(); i++){
+                Graph.Edge e = n.getEdges().get(i);
+                Graph.Edge eCopy = nCopy.getEdges().get(i);
+
+                Assertions.assertEquals(e.getNode().getIndex(), eCopy.getNode().getIndex());
+                Assertions.assertEquals(e.getDirection(), eCopy.getDirection());
+                Assertions.assertEquals(e.isEnabled(), eCopy.isEnabled());
+            }
+
+        }
+
+    }
+
+    @Test
     void test_createGraph(){
 
         int expectedSize = 25;
@@ -44,7 +83,7 @@ class Test_Graph {
 
     @Test
     void test_updateGraph(){
-        g.updateGraph(1, 1, 2, 2, 4, 2, GameStateManager.Tile.WHITE);
+        g.updateGraph(6, 12, 14, GameStateManager.Tile.WHITE);
 
         Graph.Node currentNode = g.getNodes().get(6);
         Graph.Node nextNode = g.getNodes().get(12);
@@ -66,7 +105,7 @@ class Test_Graph {
 
     @Test
     void test_updateGraph_InvalidPlayer() {
-        g.updateGraph(1, 1, 2, 2, 4, 2, GameStateManager.Tile.FIRE);
+        g.updateGraph(6, 12, 14, GameStateManager.Tile.FIRE);
 
         Graph.Node currentNode = g.getNodes().get(6);
         Graph.Node nextNode = g.getNodes().get(12);

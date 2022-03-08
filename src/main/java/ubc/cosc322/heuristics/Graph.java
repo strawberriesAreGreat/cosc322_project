@@ -3,15 +3,41 @@ package ubc.cosc322.heuristics;
 import ygraph.ai.smartfox.games.GameStateManager;
 
 import java.util.ArrayList;
+import java.util.LinkedList;
 import java.util.List;
 
 public class Graph {
 
+    public static Graph copy(Graph source){
+        Graph copy = new Graph(source.nodes.size());
+        for (Node n: source.getNodes()) {
+            copy.nodes.add(Node.copy(n));
+        }
+
+
+        for (Node n: source.getNodes()) {
+            int index = n.getIndex();
+
+            for(Edge e: n.edges){
+                int otherIndex = e.other.getIndex();
+
+                Node copyNode = copy.nodes.get(index);
+                copyNode.edges.add(Edge.copy(e, copy.nodes.get(otherIndex)));
+            }
+
+        }
+
+        return copy;
+    }
+
     private final List<Node> nodes;
-    private final int rowLength;
+
+    private Graph(int size){
+        nodes = new ArrayList<>(size);
+    }
 
     public Graph(int[][] board) {
-        rowLength = board.length;
+        int rowLength = board.length;
 
         nodes = new ArrayList<>(rowLength * board[0].length);
 
@@ -19,12 +45,11 @@ public class Graph {
 
     }
 
-    public void updateGraph(int currPosX, int currPosY, int nextPosX, int nextPosY, int arrowPosX, int arrowPosY, GameStateManager.Tile player){
+    public void updateGraph(int currIndex, int nextIndex, int arrowIndex, GameStateManager.Tile player){
 
         if(!player.isPlayer()) return;
 
         //Set current to empty
-        int currIndex = currPosY * rowLength + currPosX;
         Node currNode = nodes.get(currIndex);
         currNode.setValue(GameStateManager.Tile.EMPTY);
 
@@ -32,7 +57,6 @@ public class Graph {
         toggleConnectedNodeEdges(currNode, true);
 
         //Set next to player
-        int nextIndex = nextPosY * rowLength + nextPosX;
         Node nextNode = nodes.get(nextIndex);
         nextNode.setValue(player);
 
@@ -40,7 +64,6 @@ public class Graph {
         toggleConnectedNodeEdges(nextNode, false);
 
         //Set arrow to arrow
-        int arrowIndex = arrowPosY * rowLength + arrowPosX;
         Node arrowNode = nodes.get(arrowIndex);
         arrowNode.setValue(GameStateManager.Tile.FIRE);
 
@@ -48,7 +71,6 @@ public class Graph {
         toggleConnectedNodeEdges(arrowNode, false);
 
         updateDistances();
-
     }
 
     private void initializeGraph(int[][] board){
@@ -171,7 +193,13 @@ public class Graph {
         return sb.toString();
     }
 
+
     public static class Edge {
+
+        private static Edge copy(Edge source, Node otherCopy){
+            return new Edge(otherCopy, source.direction, source.enabled);
+        }
+
         public enum Direction {
             NORTH("North"),
             NORTH_EAST("North East"),
@@ -224,6 +252,16 @@ public class Graph {
 
     public static class Node {
 
+        private static Node copy(Node source){
+            Node copy = new Node(source.index, source.value);
+            copy.kdist1 = source.kdist1;
+            copy.kdist2 = source.kdist2;
+            copy.qdist1 = source.qdist1;
+            copy.qdist2 = source.qdist2;
+
+            return copy;
+        }
+
         private final int index;
         private GameStateManager.Tile value;
 
@@ -267,6 +305,8 @@ public class Graph {
                 kdist2 = 0;
             }
         }
+
+        public int getIndex(){ return index; }
 
         public boolean isEmpty(){
             return value.isEmpty();
