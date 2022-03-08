@@ -24,7 +24,7 @@ public class Graph {
         if(!player.isPlayer()) return;
 
         //Set current to empty
-        int currIndex = currPosX * rowLength + currPosY;
+        int currIndex = currPosY * rowLength + currPosX;
         Node currNode = nodes.get(currIndex);
         currNode.setValue(GameStateManager.Tile.EMPTY);
 
@@ -32,7 +32,7 @@ public class Graph {
         toggleConnectedNodeEdges(currNode, true);
 
         //Set next to player
-        int nextIndex = nextPosX * rowLength + nextPosY;
+        int nextIndex = nextPosY * rowLength + nextPosX;
         Node nextNode = nodes.get(nextIndex);
         nextNode.setValue(player);
 
@@ -40,7 +40,7 @@ public class Graph {
         toggleConnectedNodeEdges(nextNode, false);
 
         //Set arrow to arrow
-        int arrowIndex = arrowPosX * rowLength + arrowPosY;
+        int arrowIndex = arrowPosY * rowLength + arrowPosX;
         Node arrowNode = nodes.get(arrowIndex);
         arrowNode.setValue(GameStateManager.Tile.FIRE);
 
@@ -218,6 +218,8 @@ public class Graph {
             return direction;
         }
 
+        public boolean isEnabled() { return enabled; }
+
     }
 
     public static class Node {
@@ -311,6 +313,10 @@ public class Graph {
 
         public void setKdist2(int kdist2) {
             this.kdist2 = kdist2;
+        }
+
+        public List<Edge> getEdges(){
+            return edges;
         }
 
         public Edge getEdgeInDirection(Edge.Direction dir){
