@@ -146,17 +146,9 @@ public class Graph {
     }
 
     private void updateDistances(){
-        int size = nodes.size();
-        for(Node n : nodes){
-            if(n.isEmpty())
-                Distance.setDistances(n);
-            else {
-                n.setKdist1(Integer.MAX_VALUE);
-                n.setKdist2(Integer.MAX_VALUE);
-                n.setQdist1(Integer.MAX_VALUE);
-                n.setQdist2(Integer.MAX_VALUE);
-            }
-        }
+        for(Node n : nodes) n.resetDistances();
+        Distance.allDistances(this, GameStateManager.Tile.WHITE);
+        Distance.allDistances(this, GameStateManager.Tile.BLACK);
     }
 
     public List<Node> getNodes(){
@@ -252,13 +244,36 @@ public class Graph {
             this.index = index;
             setValue(value);
 
+            resetDistances();
+
+            edges = new ArrayList<>();
+        }
+
+        public void resetDistances(){
             //Starting distance is "infinity"
             qdist1 = Integer.MAX_VALUE;
             qdist2 = Integer.MAX_VALUE;
             kdist1 = Integer.MAX_VALUE;
             kdist2 = Integer.MAX_VALUE;
+        }
 
-            edges = new ArrayList<>();
+        public void zeroDistances(){
+            //Starting distance is "infinity"
+            qdist1 = 0;
+            qdist2 = 0;
+            kdist1 = 0;
+            kdist2 = 0;
+        }
+
+        public void setDistances(GameStateManager.Tile player){
+            if(player.isWhite()){
+                qdist1 = 0;
+                kdist1 = 0;
+            }else if(player.isBlack()){
+                qdist2 = 0;
+                kdist2 = 0;
+            }
+
         }
 
         public boolean isEmpty(){
@@ -272,6 +287,7 @@ public class Graph {
         }
 
         public void setValue(GameStateManager.Tile value) {
+            if(value.isFire()) zeroDistances();
             this.value = value;
         }
 
@@ -311,11 +327,22 @@ public class Graph {
             return edges;
         }
 
+        public Edge getEdgeInDirection(Edge.Direction dir){
+            for(Edge e : edges){
+                if (e.getDirection() == dir && e.enabled) return e;
+            }
+            return null;
+        }
+
         @Override
         public boolean equals(Object o) {
             return o instanceof Node n && n.index == index;
         }
 
+        @Override
+        public int hashCode() {
+            return super.hashCode();
+        }
     }
 
 
@@ -323,7 +350,7 @@ public class Graph {
     public static void main(String[] args) {
 
         int[][] testBoard = {
-                {0, 3, 0, 0, 1},
+                {0, 0, 0, 0, 1},
                 {0, 3, 0, 0, 0},
                 {0, 3, 0, 0, 0},
                 {0, 3, 0, 3, 0},

@@ -33,7 +33,19 @@ public class GameStateManager{
 		}
 
 		public boolean isPlayer(){
-			return this == WHITE || this == BLACK;
+			return isWhite() || isBlack();
+		}
+
+		public boolean isWhite(){
+			return this == WHITE;
+		}
+
+		public boolean isBlack(){
+			return this == BLACK;
+		}
+
+		public boolean isFire(){
+			return this == FIRE;
 		}
 
 	}
