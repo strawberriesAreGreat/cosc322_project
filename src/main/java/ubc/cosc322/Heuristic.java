@@ -31,8 +31,6 @@ public class Heuristic {
         double p3 = (f3/magnitude) * c2;
         double p4 = (f4/magnitude) * t2;
 
-        System.out.println("t1: " + t1 + ", t2: " + t2 + ", c1: " + c1 + ", c2: " + c2 + ", w: " + w + ", magnitude: " + magnitude + ", T: " + (p1 + p2 + p3 + p4));
-
         return (float) (p1 + p2 + p3 + p4);
     }
 
@@ -101,27 +99,6 @@ public class Heuristic {
     //Most important at the beginning of the game
     private static float function4 (float w){
         return w;
-    }
-
-    public static void main(String[] args) {
-        Graph g = new Graph(GameStateManager.INITIAL_BOARD_STATE);
-
-        int n = 1000;
-        float avg = 0;
-        GameStateManager.Tile player = GameStateManager.Tile.WHITE;
-
-        for(int x = 0; x < n; x++) {
-            float t = calculateT(g, player);
-            player = player == GameStateManager.Tile.WHITE ? GameStateManager.Tile.BLACK : GameStateManager.Tile.WHITE;
-
-            avg += t;
-        }
-
-        avg = avg/n;
-
-        System.out.println("AVG T: " + avg);
-
-
     }
 
 }

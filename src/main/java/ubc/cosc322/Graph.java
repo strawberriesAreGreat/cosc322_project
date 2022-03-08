@@ -331,30 +331,4 @@ public class Graph {
         }
     }
 
-
-
-    public static void main(String[] args) {
-
-        int[][] testBoard = {
-                {0, 0, 0, 0, 1},
-                {0, 0, 3, 3, 0},
-                {0, 3, 0, 3, 0},
-                {0, 3, 3, 0, 0},
-                {0, 0, 3, 2, 0}
-        };
-
-        Graph g = new Graph(testBoard);
-        //System.out.println(g + "\n");
-
-        int node = 0;
-
-
-        System.out.println("King Distance from node " + node + " to White (1): " + g.nodes.get(node).getKdist1());
-        System.out.println("King Distance from node " + node + " to Black (2): " + g.nodes.get(node).getKdist2());
-        System.out.println("-------------------------------");
-        System.out.println("Queen Distance from node " + node + " to White (1): " + g.nodes.get(node).getQdist1());
-        System.out.println("Queen Distance from node " + node + " to Black (2): " + g.nodes.get(node).getQdist2());
-
-    }
-
 }

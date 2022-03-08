@@ -2,7 +2,7 @@ import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import ubc.cosc322.Graph;
 
-public class Test_Distance {
+class Test_Distance {
 
     @Test
     void test_allDistances(){
@@ -86,6 +86,32 @@ public class Test_Distance {
         testNodeDistances(node1, 2, 1, 4, 1);
         testNodeDistances(node2, 2, 1, 2, 2);
 
+    }
+
+    @Test
+    void test_allDistances_LargeBoard(){
+        int[][] board = {
+                {0, 3, 0, 0, 3, 0, 0, 0, 0, 0},
+                {3, 1, 0, 0, 0, 0, 0, 3, 0, 0},
+                {3, 0, 3, 0, 0, 3, 0, 0, 3, 0},
+                {0, 0, 3, 0, 0, 0, 3, 1, 0, 0},
+                {0, 3, 0, 3, 0, 3, 0, 0, 0, 3},
+                {0, 3, 0, 3, 0, 3, 0, 0, 0, 3},
+                {0, 0, 2, 0, 3, 3, 0, 3, 0, 0},
+                {0, 3, 3, 0, 0, 0, 3, 3, 0, 0},
+                {0, 0, 0, 3, 3, 0, 0, 0, 0, 0},
+                {0, 0, 0, 0, 3, 0, 2, 0, 3, 0}
+        };
+
+        Graph.Node node1 = getBoardNode(board, 0);
+        Graph.Node node2 = getBoardNode(board, 52);
+        Graph.Node node3 = getBoardNode(board, 88);
+        Graph.Node node4 = getBoardNode(board, 99);
+
+        testNodeDistances(node1, 1, 1, Integer.MAX_VALUE, Integer.MAX_VALUE);
+        testNodeDistances(node2, 4, 3, 1, 1);
+        testNodeDistances(node3, 5, 2, 2, 2);
+        testNodeDistances(node4, 6, 3, 3, 2);
     }
 
     private Graph.Node getBoardNode(int[][] board, int index){
