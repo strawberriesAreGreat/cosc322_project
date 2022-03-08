@@ -1,7 +1,7 @@
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
-import ubc.cosc322.Graph;
-import ubc.cosc322.Heuristic;
+import ubc.cosc322.heuristics.Graph;
+import ubc.cosc322.heuristics.Heuristic;
 import ygraph.ai.smartfox.games.GameStateManager;
 
 class Test_Heuristic {

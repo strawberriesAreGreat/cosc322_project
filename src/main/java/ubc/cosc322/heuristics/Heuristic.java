@@ -1,4 +1,4 @@
-package ubc.cosc322;
+package ubc.cosc322.heuristics;
 
 import ygraph.ai.smartfox.games.GameStateManager;
 
