@@ -61,7 +61,7 @@ class Test_Heuristic {
 
     @Test
     void test_calculateT_EqualBigBoard(){
-        int[][] board = GameStateManager.INITIAL_BOARD_STATE;
+        int[][] board = GameStateManager.getInitialBoardState();
 
         Graph g = new Graph(board);
 
