@@ -252,14 +252,13 @@ public class Graph {
         }
 
         public void zeroDistances(){
-            //Starting distance is "infinity"
             qdist1 = 0;
             qdist2 = 0;
             kdist1 = 0;
             kdist2 = 0;
         }
 
-        public void setDistances(GameStateManager.Tile player){
+        public void playerZeroDistances(GameStateManager.Tile player){
             if(player.isWhite()){
                 qdist1 = 0;
                 kdist1 = 0;
@@ -267,7 +266,6 @@ public class Graph {
                 qdist2 = 0;
                 kdist2 = 0;
             }
-
         }
 
         public boolean isEmpty(){

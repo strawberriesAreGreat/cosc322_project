@@ -30,7 +30,7 @@ public class Distance {
 
             //Add player nodes to search list
             if(n.getValue() == player) {
-                n.setDistances(n.getValue());
+                n.playerZeroDistances(n.getValue());
                 searchList.add(new DistanceNode(n, n.getValue()));
             }
         }
