@@ -1,6 +1,6 @@
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
-import ubc.cosc322.heuristics.Graph;
+import ubc.cosc322.Graph;
 
 class Test_Distance {
 

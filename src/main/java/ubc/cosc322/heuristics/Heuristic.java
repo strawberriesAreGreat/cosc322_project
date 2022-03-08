@@ -1,5 +1,6 @@
 package ubc.cosc322.heuristics;
 
+import ubc.cosc322.Graph;
 import ygraph.ai.smartfox.games.GameStateManager;
 
 public class Heuristic {

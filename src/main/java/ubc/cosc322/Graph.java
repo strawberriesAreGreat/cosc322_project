@@ -1,9 +1,9 @@
-package ubc.cosc322.heuristics;
+package ubc.cosc322;
 
+import ubc.cosc322.heuristics.Distance;
 import ygraph.ai.smartfox.games.GameStateManager;
 
 import java.util.ArrayList;
-import java.util.LinkedList;
 import java.util.List;
 
 public class Graph {
