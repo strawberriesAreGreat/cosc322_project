@@ -8,6 +8,11 @@ import java.util.List;
 
 public class Graph {
 
+    /**
+     * Creates an identical deep copy of the source graph
+     * @param source
+     * @return a copy of the source graph
+     */
     public static Graph copy(Graph source){
         Graph copy = new Graph(source.nodes.size());
         for (Node n: source.getNodes()) {
@@ -45,6 +50,13 @@ public class Graph {
 
     }
 
+    /**
+     * Takes a player's move information and updates the graph accordingly.
+     * @param currIndex The node index the player moved from
+     * @param nextIndex The node index the player moved to
+     * @param arrowIndex The node index the player fired an arrow at
+     * @param player
+     */
     public void updateGraph(int currIndex, int nextIndex, int arrowIndex, GameStateManager.Tile player){
 
         if(!player.isPlayer()) return;
@@ -295,14 +307,19 @@ public class Graph {
             edges = new ArrayList<>();
         }
 
+        /**
+         * Sets all distances to Integer.MAX_VALUE
+         */
         public void resetDistances(){
-            //Starting distance is "infinity"
             qdist1 = Integer.MAX_VALUE;
             qdist2 = Integer.MAX_VALUE;
             kdist1 = Integer.MAX_VALUE;
             kdist2 = Integer.MAX_VALUE;
         }
 
+        /**
+         * Sets all distances to 0
+         */
         public void zeroDistances(){
             qdist1 = 0;
             qdist2 = 0;
@@ -310,6 +327,10 @@ public class Graph {
             kdist2 = 0;
         }
 
+        /**
+         * Sets kDist and qDist to 0 for the given player
+         * @param player
+         */
         public void playerZeroDistances(GameStateManager.Tile player){
             if(player.isWhite()){
                 qdist1 = 0;
@@ -318,6 +339,19 @@ public class Graph {
                 qdist2 = 0;
                 kdist2 = 0;
             }
+        }
+
+        /**
+         * Returns an edge connected to the node in the given direction
+         * @param dir
+         * @return An edge in the specified direction,
+         * or null if the edge is disabled or non-existent.
+         */
+        public Edge getEdgeInDirection(Edge.Direction dir){
+            for(Edge e : edges){
+                if (e.getDirection() == dir && e.enabled) return e;
+            }
+            return null;
         }
 
         public int getIndex(){ return index; }
@@ -369,13 +403,6 @@ public class Graph {
 
         public List<Edge> getEdges(){
             return edges;
-        }
-
-        public Edge getEdgeInDirection(Edge.Direction dir){
-            for(Edge e : edges){
-                if (e.getDirection() == dir && e.enabled) return e;
-            }
-            return null;
         }
 
         @Override

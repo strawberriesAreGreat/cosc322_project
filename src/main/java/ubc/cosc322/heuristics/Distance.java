@@ -14,6 +14,12 @@ public class Distance {
 
     }
 
+    /**
+     * Sets the kDist and qDist values on each empty tile
+     * on the board for a given player
+     * @param g
+     * @param player
+     */
     public static void allDistances(Graph g, GameStateManager.Tile player){
 
         List<DistanceNode> searchList = new LinkedList<>();
@@ -48,12 +54,22 @@ public class Distance {
 
     }
 
-    private static List<DistanceNode> allDistancesHelper(List<DistanceNode> nodes, int qDist, Set<Graph.Node> unvisited){
+    /**
+     * Sets the kDist and qDist values for each node exactly
+     * one Chess Queen move away from the list of starting nodes.
+     * Returns the list of nodes that were visited and had not been
+     * visited before.
+     * @param startingNodes List of starting nodes
+     * @param qDist the Queens Distance value away from the player
+     * @param unvisited a set of unvisited nodes
+     * @return a List of newly visited nodes
+     */
+    private static List<DistanceNode> allDistancesHelper(List<DistanceNode> startingNodes, int qDist, Set<Graph.Node> unvisited){
 
-        //A list of all newly visited nodes this iteration
+        //A list of all newly visited startingNodes this iteration
         List<DistanceNode> returnList = new LinkedList<>();
 
-        for(DistanceNode start : nodes) {
+        for(DistanceNode start : startingNodes) {
 
             Graph.Node startNode = start.node;
             unvisited.remove(startNode);
@@ -63,7 +79,7 @@ public class Distance {
 
                 Graph.Edge current = startNode.getEdgeInDirection(direction);
 
-                //kDist is set to the starting nodes k distance from the player
+                //kDist is set to the starting startingNodes k distance from the player
                 int kDist = 1;
                 if(start.relatedPlayer.isWhite())
                     kDist = startNode.getKdist1();
