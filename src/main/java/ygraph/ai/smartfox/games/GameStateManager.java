@@ -50,7 +50,8 @@ public class GameStateManager{
 
 	}
 
-	public static int[][] INITIAL_BOARD_STATE = {
+	private static final int[][] INITIAL_BOARD_STATE = {
+
 			{0, 0, 0, 2, 0, 0, 2, 0, 0, 0},
 			{0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
 			{0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
@@ -63,8 +64,17 @@ public class GameStateManager{
 			{0, 0, 0, 1, 0, 0, 1, 0, 0, 0},
 	};
 
+	public static int[][] getInitialBoardState(){
+		return INITIAL_BOARD_STATE;
+	}
 
-	public static void timer() { // already a class for this
+	public GameStateManager(){
+		//Create minimax tree from initial board state
+
+	}
+
+	public static void timer() {
+		// already a class for this
 		// creates new instance of timer and sets a time limit
 		int timeLimit = 20000;
 		Timer time = new Timer();
@@ -82,88 +92,57 @@ public class GameStateManager{
 		// cancels the timer once finished
 		time.cancel();	
 	}
-		
-	
+
 	// takes the message Details that are stored in the array and retrieves the position of:
 	// Current X and Y of Queen
 	public int getQueenXCurrent (Map<String, Object> msgDetails) {
-		ArrayList<Integer> queenpos = new ArrayList<>();
-		queenpos = (ArrayList<Integer>) msgDetails.get("queen-position-current");
-		
-		int x = queenpos.get(0);
-		
-		return x;
+		ArrayList<Integer> queenpos = (ArrayList<Integer>) msgDetails.get("queen-position-current");
+
+		return queenpos.get(0);
 	}
 	
 	public int getQueenYCurrent (Map<String, Object> msgDetails) {
-		ArrayList<Integer> queenpos = new ArrayList<>();
-		queenpos = (ArrayList<Integer>) msgDetails.get("queen-position-current");
-		
-		int y = queenpos.get(1);
-		
-		return y;
+		ArrayList<Integer> queenpos = (ArrayList<Integer>) msgDetails.get("queen-position-current");
+		return queenpos.get(1);
 	}
 	// ---------------------
 	
 	// Current X and Y of Player Black
 	public int getPlayerBlackX (Map<String, Object> msgDetails) {
-		ArrayList<Integer> black = new ArrayList<>();
-		black = (ArrayList<Integer>) msgDetails.get("player-black");
-		
-		int x = black.get(0);
-		
-		return x;
+		ArrayList<Integer> black = (ArrayList<Integer>) msgDetails.get("player-black");
+
+		return black.get(0);
 	}
 	
 	public int getPlayerBlackY (Map<String, Object> msgDetails) {
-		ArrayList<Integer> black = new ArrayList<>();
-		black = (ArrayList<Integer>) msgDetails.get("player-black");
-		
-		int y = black.get(1);
-		
-		return y;
+		ArrayList<Integer> black = (ArrayList<Integer>) msgDetails.get("player-black");
+		return black.get(1);
 	}
 	
 	// ---------------------
 	
 	// Current X and Y of Player white
 	public int getPlayerWhiteX (Map<String, Object> msgDetails) {
-		ArrayList<Integer> white = new ArrayList<>();
-		white = (ArrayList<Integer>) msgDetails.get("player-white");
-		
-		int x = white.get(0);
-		
-		return x;
+		ArrayList<Integer> white = (ArrayList<Integer>) msgDetails.get("player-white");
+		return white.get(0);
 	}
 	
 	public int getPlayerWhiteY (Map<String, Object> msgDetails) {
-		ArrayList<Integer> white = new ArrayList<>();
-		white = (ArrayList<Integer>) msgDetails.get("player-white");
-		
-		int y = white.get(1);
-		
-		return y;
+		ArrayList<Integer> white = (ArrayList<Integer>) msgDetails.get("player-white");
+		return white.get(1);
 	}
 	
 	// ---------------------
 	
 	// Current X and Y of Arrow
 	public int getArrowPosX (Map<String, Object> msgDetails) {
-		ArrayList<Integer> arrow = new ArrayList<>();
-		arrow = (ArrayList<Integer>) msgDetails.get("arrow-position");
-		
-		int x = arrow.get(0);
-		
-		return x;
+		ArrayList<Integer> arrow = (ArrayList<Integer>) msgDetails.get("arrow-position");
+		return arrow.get(0);
 	}
 	
 	public int getArrowPosY (Map<String, Object> msgDetails) {
-		ArrayList<Integer> arrow = new ArrayList<>();
-		arrow = (ArrayList<Integer>) msgDetails.get("arrow-position");
-		
-		int y = arrow.get(1);
-		
-		return y;
+		ArrayList<Integer> arrow = (ArrayList<Integer>) msgDetails.get("arrow-position");
+		return arrow.get(1);
 	}
 
 	// ---------------------

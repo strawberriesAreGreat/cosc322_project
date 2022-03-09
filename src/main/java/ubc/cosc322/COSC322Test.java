@@ -5,12 +5,9 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
 
-import ygraph.ai.smartfox.games.BaseGameGUI;
-import ygraph.ai.smartfox.games.BoardGameModel;
-import ygraph.ai.smartfox.games.GameClient;
-import ygraph.ai.smartfox.games.GameMessage;
-import ygraph.ai.smartfox.games.GamePlayer;
+import ygraph.ai.smartfox.games.*;
 import ygraph.ai.smartfox.games.amazons.AmazonsGameMessage;
+import ygraph.ai.smartfox.games.amazons.HumanPlayer;
 
 /**
  * An example illustrating how to implement a GamePlayer
@@ -22,7 +19,8 @@ public class COSC322Test extends GamePlayer{
 
     private GameClient gameClient = null; 
     private BaseGameGUI gameGui = null;
-	
+	private GameStateManager gameStateManager;
+
     private String userName = null;
     private String passwd = null;
  
@@ -32,18 +30,14 @@ public class COSC322Test extends GamePlayer{
      * @param args for name and passwd (current, any string would work)
      */
     public static void main(String[] args) {				 
-    	COSC322Test player = new COSC322Test(args[0], args[1]);
+    	COSC322Test bot = new COSC322Test(args[0], args[1]);
     	
-    	if(player.getGameGUI() == null) {
-    		player.Go();
+    	if(bot.getGameGUI() == null) {
+    		bot.Go();
     	}
     	else {
     		BaseGameGUI.sys_setup();
-            java.awt.EventQueue.invokeLater(new Runnable() {
-                public void run() {
-                	player.Go();
-                }
-            });
+            java.awt.EventQueue.invokeLater(bot::Go);
     	}
     }
 	
@@ -59,6 +53,9 @@ public class COSC322Test extends GamePlayer{
     	//To make a GUI-based player, create an instance of BaseGameGUI
     	//and implement the method getGameGUI() accordingly
     	this.gameGui = new BaseGameGUI(this);
+
+		//Initialize GameStateManager
+		this.gameStateManager = new GameStateManager();
     }
  
 
@@ -86,7 +83,30 @@ public class COSC322Test extends GamePlayer{
 
 		switch (messageType) {
 			case GameMessage.GAME_STATE_BOARD -> gameGui.setGameState((ArrayList<Integer>) msgDetails.get(AmazonsGameMessage.GAME_STATE));
-			case GameMessage.GAME_ACTION_MOVE ->  gameGui.updateGameState(msgDetails);
+			case GameMessage.GAME_ACTION_MOVE ->  {
+				//Update our GUI to reflect opponents move
+				gameGui.updateGameState(msgDetails);
+
+				//Update GameStateManager board state
+
+				//Make our move
+
+			}
+			case GameMessage.GAME_ACTION_START -> {
+
+				//Make a move if the bot starts as white
+				String white = (String) msgDetails.get(AmazonsGameMessage.PLAYER_WHITE);
+				if(white.equalsIgnoreCase(userName)){
+					System.out.println("BOT START");
+					//Make a move
+
+				} else {
+					System.out.println("OPPONENT START");
+				}
+			}
+			case GameMessage.GAME_STATE_PLAYER_LOST -> {
+				// Stop bot?
+			}
 		}
 
 		System.out.println("MSG Type:" + messageType);
