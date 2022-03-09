@@ -10,6 +10,13 @@ import java.util.*;
 
 public class GameStateManager{
 
+	//IMPORTANT
+	//Moves are presented as 2 element Integer ArrayLists
+	//The first int representing the Y value from bottom to top
+	//The second int representing the X value from right to left
+	//[10, 7] corresponds to [10, G] on the game board GUI.
+	//[5, 3] corresponds to [5, C] etc...
+
 	public enum Tile {
 		EMPTY(0),
 		WHITE(1),
@@ -116,22 +123,24 @@ public class GameStateManager{
 	// Current X and Y of Queen
 	public int getQueenCurrentIndex (Map<String, Object> msgDetails) {
 		ArrayList<Integer> current = (ArrayList<Integer>) msgDetails.get(AmazonsGameMessage.QUEEN_POS_CURR);
-		return (current.get(0)-1) * ROW_LENGTH + (current.get(1)-1);
+		return (ROW_LENGTH - current.get(0)) * ROW_LENGTH + (current.get(1)-1);
 	}
 
 	public int getQueenNextIndex (Map<String, Object> msgDetails) {
 		ArrayList<Integer> next = (ArrayList<Integer>) msgDetails.get(AmazonsGameMessage.Queen_POS_NEXT);
-		return (next.get(0)-1) * ROW_LENGTH + (next.get(1)-1);
+		return (ROW_LENGTH - next.get(0)) * ROW_LENGTH + (next.get(1)-1);
 	}
 
 	public int getArrowIndex (Map<String, Object> msgDetails) {
 		ArrayList<Integer> arrow = (ArrayList<Integer>) msgDetails.get(AmazonsGameMessage.ARROW_POS);
-		return (arrow.get(0)-1) * ROW_LENGTH + (arrow.get(1)-1);
+		return (ROW_LENGTH - arrow.get(0)) * ROW_LENGTH + (arrow.get(1)-1);
 	}
 
 	private ArrayList<Integer> indexToArrayList(int index){
 		ArrayList<Integer> list = new ArrayList<>(2);
-		list.add(ROW_LENGTH - (index / ROW_LENGTH));
+		//Y Position
+		list.add((int) Math.ceil(ROW_LENGTH - ((float) index/ROW_LENGTH)));
+		//X Position
 		list.add((index % ROW_LENGTH) + 1);
 		return list;
 	}

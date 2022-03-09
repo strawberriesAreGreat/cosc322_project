@@ -87,65 +87,68 @@ public class Graph {
 
         createNodes(board);
 
+        int height = board.length;
+        int width = board[0].length;
+
         //Connect nodes to their neighbors
-        for(int i = 0; i < board.length; i++){
-            for(int j = 0; j < board[0].length; j++){
-                int index = i * board.length + j;
+        for(int y = 0; y < height; y++){
+            for(int x = 0; x < width; x++){
+                int index = y * width + x;
 
                 Node node = nodes.get(index);
 
                 //Connect north node
-                if(i - 1 >= 0){
-                    int north = index - board.length;
+                if(y - 1 >= 0){
+                    int north = index - width;
                     Node northNode = nodes.get(north);
                     addEdge(node, northNode, Edge.Direction.NORTH, northNode.isEmpty());
                 }
 
                 //Connect northeast node
-                if(i - 1 >= 0 && j + 1 < board[0].length){
-                    int northEast = index - board.length + 1;
+                if(y - 1 >= 0 && x + 1 < width){
+                    int northEast = index - width + 1;
                     Node northEastNode = nodes.get(northEast);
                     addEdge(node, northEastNode, Edge.Direction.NORTH_EAST, northEastNode.isEmpty());
                 }
 
                 //Connect east node
-                if(j + 1 < board[0].length){
+                if(x + 1 < width){
                     int east = index + 1;
                     Node eastNode = nodes.get(east);
                     addEdge(node, eastNode, Edge.Direction.EAST, eastNode.isEmpty());
                 }
 
                 //Connect southeast node
-                if(i + 1 < board.length && j + 1 < board[0].length){
-                    int southEast = index + board.length + 1;
+                if(y + 1 < height && x + 1 < width){
+                    int southEast = index + width + 1;
                     Node southEastNode = nodes.get(southEast);
                     addEdge(node, southEastNode, Edge.Direction.SOUTH_EAST, southEastNode.isEmpty());
                 }
 
                 //Connect south node
-                if(i + 1 < board.length){
-                    int south = index + board.length;
+                if(y + 1 < height){
+                    int south = index + width;
                     Node southNode = nodes.get(south);
                     addEdge(node, southNode, Edge.Direction.SOUTH, southNode.isEmpty());
                 }
 
                 //Connect southwest node
-                if(i + 1 < board.length && j - 1 >= 0){
-                    int southWest = index + board.length - 1;
+                if(y + 1 < height && x - 1 >= 0){
+                    int southWest = index + width - 1;
                     Node southWestNode = nodes.get(southWest);
                     addEdge(node, southWestNode, Edge.Direction.SOUTH_WEST, southWestNode.isEmpty());
                 }
 
                 //Connect west node
-                if(j - 1 >= 0){
+                if(x - 1 >= 0){
                     int west = index - 1;
                     Node westNode = nodes.get(west);
                     addEdge(node, westNode, Edge.Direction.WEST, westNode.isEmpty());
                 }
 
                 //Connect northwest node
-                if(i - 1 >= 0 && j - 1 >= 0){
-                    int northWest = index - board.length - 1;
+                if(y - 1 >= 0 && x - 1 >= 0){
+                    int northWest = index - width - 1;
                     Node northWestNode = nodes.get(northWest);
                     addEdge(node, northWestNode, Edge.Direction.NORTH_WEST, northWestNode.isEmpty());
                 }
@@ -157,16 +160,20 @@ public class Graph {
     }
 
     private void createNodes(int[][] board){
-        for(int i = 0; i < board.length; i++){
-            for(int j = 0; j < board[0].length; j++){
-                int index = i * board.length + j;
-                Node n = new Node(index, GameStateManager.Tile.valueOf(board[i][j]));
+        for(int y = 0; y < board.length; y++){
+            for(int x = 0; x < board[0].length; x++){
+                int index = y * board[0].length + x;
+                Node n = new Node(index, GameStateManager.Tile.valueOf(board[y][x]));
                 nodes.add(n);
             }
         }
     }
 
     private void addEdge(Node n1, Node n2, Edge.Direction direction, boolean enabled){
+        if(n1.edges.size() == 8){
+            System.out.println(n1 + " TOO MANY EDGES!!");
+            return;
+        }
         n1.edges.add(new Edge(n2, direction, enabled));
     }
 
@@ -205,9 +212,7 @@ public class Graph {
 
     @Override
     public boolean equals(Object o){
-        if(!(o instanceof Graph)) return false;
-
-        Graph g = (Graph) o;
+        if(!(o instanceof Graph g)) return false;
 
         if(nodes.size() != g.nodes.size()) return false;
 
@@ -216,6 +221,11 @@ public class Graph {
         }
 
         return true;
+    }
+
+    @Override
+    public int hashCode(){
+        return super.hashCode();
     }
 
     public static class Edge {

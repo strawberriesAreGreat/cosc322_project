@@ -25,8 +25,8 @@ class Test_Graph {
     @Test
     void test_copy(){
         int[][] copyTestBoard = {
-                {0, 3},
-                {3, 1}
+                {0, 3, 0},
+                {3, 1, 1}
         };
 
         Graph original = new Graph(copyTestBoard);
