@@ -51,6 +51,7 @@ public class GameStateManager{
 	}
 
 	private static final int[][] INITIAL_BOARD_STATE = {
+
 			{0, 0, 0, 2, 0, 0, 2, 0, 0, 0},
 			{0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
 			{0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
@@ -66,7 +67,6 @@ public class GameStateManager{
 	public static int[][] getInitialBoardState(){
 		return INITIAL_BOARD_STATE;
 	}
-
 
 	public GameStateManager(){
 		//Create minimax tree from initial board state
