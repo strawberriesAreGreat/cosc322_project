@@ -7,6 +7,14 @@ import java.util.List;
 
 public class Moves {
 
+    /**
+     * Generates all the possible moves for a given player and
+     * returns them as a list of graphs with each new
+     * potential board state
+     * @param g
+     * @param player
+     * @return A list of graphs corresponding to each possible move
+     */
     public static List<Graph> allMoves(Graph g, GameStateManager.Tile player){
         List<Graph> moveList = new LinkedList<>();
 
@@ -49,6 +57,13 @@ public class Moves {
         return moveList;
     }
 
+    /**
+     * Finds all nodes in a graph corresponding to a specified player
+     * and returns them as a list of nodes.
+     * @param g
+     * @param player
+     * @return List of player nodes
+     */
     private static List<Graph.Node> getPlayerNodes(Graph g, GameStateManager.Tile player){
         List<Graph.Node> playerNodes = new LinkedList<>();
         //Determine all possible moves for each player
