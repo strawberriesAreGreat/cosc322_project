@@ -14,13 +14,7 @@ public class Test_Moves {
             {0, 3, 0},
             {0, 3, 0}
     };
-
-//    private final int[][] moveState = {
-//            {0, 1, 2},
-//            {0, 3, 3},
-//            {0, 3, 0}
-//    };
-
+    
     private Graph initialGraph;
 
     @BeforeEach
