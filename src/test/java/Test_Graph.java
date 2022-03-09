@@ -6,7 +6,7 @@ import ygraph.ai.smartfox.games.GameStateManager;
 
 class Test_Graph {
 
-    private static final int[][]board = {
+    private static final int[][] board = {
             {0, 3, 3, 0, 0},
             {3, 1, 3, 3, 2},
             {3, 0, 0, 0, 0},
@@ -58,6 +58,24 @@ class Test_Graph {
 
         }
 
+    }
+
+    @Test
+    void test_equals(){
+        Graph equal = new Graph(board);
+
+        int[][] unequalBoard = {
+                {0, 3, 3, 0, 0},
+                {3, 0, 3, 3, 2},
+                {3, 0, 1, 0, 0},
+                {3, 3, 0, 1, 3},
+                {0, 2, 3, 0, 0}
+        };
+
+        Graph notEqual = new Graph(unequalBoard);
+
+        Assertions.assertEquals(g, equal);
+        Assertions.assertNotEquals(g, notEqual);
     }
 
     @Test
