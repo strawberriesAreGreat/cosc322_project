@@ -88,25 +88,35 @@ public class COSC322Test extends GamePlayer{
 				gameGui.updateGameState(msgDetails);
 
 				//Update GameStateManager board state
+				gameStateManager.opponentMove(msgDetails);
 
 				//Make our move
-
+				Map<String, Object> moveDetails = gameStateManager.makeMove();
+				gameGui.updateGameState(moveDetails);
+				gameClient.sendMoveMessage(moveDetails);
 			}
 			case GameMessage.GAME_ACTION_START -> {
 
 				//Make a move if the bot starts as white
 				String white = (String) msgDetails.get(AmazonsGameMessage.PLAYER_WHITE);
 				if(white.equalsIgnoreCase(userName)){
-					System.out.println("BOT START");
-					//Make a move
+					gameStateManager.setPlayer(GameStateManager.Tile.WHITE);
+
+					//Make our move
+					Map<String, Object> moveDetails = gameStateManager.makeMove();
+
+//					ArrayList<Integer> moveCurrent = (ArrayList<Integer>) moveDetails.get(AmazonsGameMessage.QUEEN_POS_CURR);
+//					ArrayList<Integer> moveNext = (ArrayList<Integer>) moveDetails.get(AmazonsGameMessage.QUEEN_POS_CURR);
+//					ArrayList<Integer> moveArrow = (ArrayList<Integer>) moveDetails.get(AmazonsGameMessage.QUEEN_POS_CURR);
+
+					gameGui.updateGameState(moveDetails);
+					gameClient.sendMoveMessage(moveDetails);
 
 				} else {
-					System.out.println("OPPONENT START");
+					gameStateManager.setPlayer(GameStateManager.Tile.BLACK);
 				}
 			}
-			case GameMessage.GAME_STATE_PLAYER_LOST -> {
-				// Stop bot?
-			}
+			default -> System.out.println("Unhandled message type.");
 		}
 
 		System.out.println("MSG Type:" + messageType);

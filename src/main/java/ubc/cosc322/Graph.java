@@ -52,31 +52,29 @@ public class Graph {
 
     /**
      * Takes a player's move information and updates the graph accordingly.
-     * @param currIndex The node index the player moved from
-     * @param nextIndex The node index the player moved to
-     * @param arrowIndex The node index the player fired an arrow at
+     * @param move A move record containing the move information
      * @param player
      */
-    public void updateGraph(int currIndex, int nextIndex, int arrowIndex, GameStateManager.Tile player){
+    public void updateGraph(Moves.Move move, GameStateManager.Tile player){
 
         if(!player.isPlayer()) return;
 
         //Set current to empty
-        Node currNode = nodes.get(currIndex);
+        Node currNode = nodes.get(move.currentIndex());
         currNode.setValue(GameStateManager.Tile.EMPTY);
 
         //Enable edges for all connected nodes
         toggleConnectedNodeEdges(currNode, true);
 
         //Set next to player
-        Node nextNode = nodes.get(nextIndex);
+        Node nextNode = nodes.get(move.nextIndex());
         nextNode.setValue(player);
 
         //Disable edges for all connected nodes
         toggleConnectedNodeEdges(nextNode, false);
 
         //Set arrow to arrow
-        Node arrowNode = nodes.get(arrowIndex);
+        Node arrowNode = nodes.get(move.arrowIndex());
         arrowNode.setValue(GameStateManager.Tile.FIRE);
 
         //Disable edges for all connected nodes

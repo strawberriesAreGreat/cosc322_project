@@ -2,8 +2,7 @@ package ubc.cosc322;
 
 import ygraph.ai.smartfox.games.GameStateManager;
 
-import java.util.LinkedList;
-import java.util.List;
+import java.util.*;
 
 public class Moves {
 
@@ -15,8 +14,8 @@ public class Moves {
      * @param player
      * @return A list of graphs corresponding to each possible move
      */
-    public static List<Graph> allMoves(Graph g, GameStateManager.Tile player){
-        List<Graph> moveList = new LinkedList<>();
+    public static Map<Move, Graph> allMoves(Graph g, GameStateManager.Tile player){
+        Map<Move, Graph> moveMap = new HashMap<>();
 
         List<Graph.Node> playerNodes = getPlayerNodes(g, player);
 
@@ -30,8 +29,10 @@ public class Moves {
 
                     //Add state where player shot where they moved from
                     Graph moveStateArrowAtCurrentIndex = Graph.copy(g);
-                    moveStateArrowAtCurrentIndex.updateGraph(current.getIndex(), next.getNode().getIndex(), current.getIndex(), player);
-                    moveList.add(moveStateArrowAtCurrentIndex);
+                    Move moveArrowAtCurrentIndex = new Move(current.getIndex(), next.getNode().getIndex(), current.getIndex());
+                    moveStateArrowAtCurrentIndex.updateGraph(moveArrowAtCurrentIndex, player);
+
+                    moveMap.put(moveArrowAtCurrentIndex, moveStateArrowAtCurrentIndex);
 
                     //Check all possible arrow shows in each direction
                     for(Graph.Edge.Direction arrowDir : Graph.Edge.Direction.values()){
@@ -42,8 +43,10 @@ public class Moves {
 
                             //Create a new board state
                             Graph moveState = Graph.copy(g);
-                            moveState.updateGraph(current.getIndex(), next.getNode().getIndex(), arrow.getNode().getIndex(), player);
-                            moveList.add(moveState);
+                            Move move = new Move(current.getIndex(), next.getNode().getIndex(), arrow.getNode().getIndex());
+                            moveState.updateGraph(move, player);
+
+                            moveMap.put(move, moveState);
 
                             arrow = arrow.getNode().getEdgeInDirection(arrowDir);
                         }
@@ -54,7 +57,7 @@ public class Moves {
             }
         }
         
-        return moveList;
+        return moveMap;
     }
 
     /**
@@ -74,6 +77,8 @@ public class Moves {
 
         return playerNodes;
     }
+
+    public record Move(int currentIndex, int nextIndex, int arrowIndex){}
 
 
 

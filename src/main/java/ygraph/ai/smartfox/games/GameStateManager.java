@@ -1,5 +1,10 @@
 package ygraph.ai.smartfox.games;
 
+import ubc.cosc322.Graph;
+import ubc.cosc322.Moves;
+import ubc.cosc322.heuristics.Heuristic;
+import ygraph.ai.smartfox.games.amazons.AmazonsGameMessage;
+
 import java.util.*;
 
 
@@ -50,6 +55,7 @@ public class GameStateManager{
 
 	}
 
+	private static final int ROW_LENGTH = 10;
 	private static final int[][] INITIAL_BOARD_STATE = {
 
 			{0, 0, 0, 2, 0, 0, 2, 0, 0, 0},
@@ -68,7 +74,20 @@ public class GameStateManager{
 		return INITIAL_BOARD_STATE;
 	}
 
+	private Tile player;
+	public void setPlayer(Tile p){
+		if(p.isPlayer()){
+			player = p;
+		}
+	}
+
+	private Graph currentState;
+	private Map<Moves.Move, Graph> movesMap;
+
 	public GameStateManager(){
+		currentState = new Graph(INITIAL_BOARD_STATE);
+		movesMap = new HashMap<>();
+
 		//Create minimax tree from initial board state
 
 	}
@@ -93,86 +112,69 @@ public class GameStateManager{
 		time.cancel();	
 	}
 
-	// takes the message Details that are stored in the array and retrieves the position of:
+	// Takes the message Details that are stored in the array and retrieves the position of:
 	// Current X and Y of Queen
-	public int getQueenXCurrent (Map<String, Object> msgDetails) {
-		ArrayList<Integer> queenpos = (ArrayList<Integer>) msgDetails.get("queen-position-current");
-
-		return queenpos.get(0);
-	}
-	
-	public int getQueenYCurrent (Map<String, Object> msgDetails) {
-		ArrayList<Integer> queenpos = (ArrayList<Integer>) msgDetails.get("queen-position-current");
-		return queenpos.get(1);
-	}
-	// ---------------------
-	
-	// Current X and Y of Player Black
-	public int getPlayerBlackX (Map<String, Object> msgDetails) {
-		ArrayList<Integer> black = (ArrayList<Integer>) msgDetails.get("player-black");
-
-		return black.get(0);
-	}
-	
-	public int getPlayerBlackY (Map<String, Object> msgDetails) {
-		ArrayList<Integer> black = (ArrayList<Integer>) msgDetails.get("player-black");
-		return black.get(1);
-	}
-	
-	// ---------------------
-	
-	// Current X and Y of Player white
-	public int getPlayerWhiteX (Map<String, Object> msgDetails) {
-		ArrayList<Integer> white = (ArrayList<Integer>) msgDetails.get("player-white");
-		return white.get(0);
-	}
-	
-	public int getPlayerWhiteY (Map<String, Object> msgDetails) {
-		ArrayList<Integer> white = (ArrayList<Integer>) msgDetails.get("player-white");
-		return white.get(1);
-	}
-	
-	// ---------------------
-	
-	// Current X and Y of Arrow
-	public int getArrowPosX (Map<String, Object> msgDetails) {
-		ArrayList<Integer> arrow = (ArrayList<Integer>) msgDetails.get("arrow-position");
-		return arrow.get(0);
-	}
-	
-	public int getArrowPosY (Map<String, Object> msgDetails) {
-		ArrayList<Integer> arrow = (ArrayList<Integer>) msgDetails.get("arrow-position");
-		return arrow.get(1);
+	public int getQueenCurrentIndex (Map<String, Object> msgDetails) {
+		ArrayList<Integer> current = (ArrayList<Integer>) msgDetails.get(AmazonsGameMessage.QUEEN_POS_CURR);
+		return current.get(0) * ROW_LENGTH + current.get(1);
 	}
 
-	// ---------------------
-	
-	
-	// Makes a Move and then updates the GUI
-	public void MakeMove (Map<String, Object> msgDetails, BaseGameGUI gameGui) {
-		//gets the string representation of the play
-		String move = GameMessage.GAME_ACTION_MOVE;
-		
-		// TODO: should add the new position here if the coordinate is free
-		
-		GameStateManager.updateGui(msgDetails, gameGui);
+	public int getQueenNextIndex (Map<String, Object> msgDetails) {
+		ArrayList<Integer> next = (ArrayList<Integer>) msgDetails.get(AmazonsGameMessage.Queen_POS_NEXT);
+		return next.get(0) * ROW_LENGTH + next.get(1);
 	}
-	
-	// Updates the GUI
-	public static void updateGui (Map<String, Object> msgDetails, BaseGameGUI gameGui) {
-		gameGui.updateGameState(msgDetails);
+
+	public int getArrowIndex (Map<String, Object> msgDetails) {
+		ArrayList<Integer> arrow = (ArrayList<Integer>) msgDetails.get(AmazonsGameMessage.ARROW_POS);
+		return arrow.get(0) * ROW_LENGTH + arrow.get(1);
 	}
-	
-	// Checks for an open position
-	public boolean openPos (int x, int y) {
-		ArrayList<Integer> coor = new ArrayList<>();
-		coor.add(x);
-		coor.add(y);
-		
-		// TODO: check if this coordinate is occupied
-		
-		return false;
+
+	private ArrayList<Integer> indexToArrayList(int index){
+		ArrayList<Integer> list = new ArrayList(2);
+		list.add(ROW_LENGTH - (index / ROW_LENGTH));
+		list.add((index % ROW_LENGTH) + 1);
+		return list;
 	}
-	
+
+
+	public void opponentMove(Map<String, Object> msgDetails){
+		int currentIndex = getQueenCurrentIndex(msgDetails);
+		int nextIndex = getQueenNextIndex(msgDetails);
+		int arrowIndex = getArrowIndex(msgDetails);
+
+		//
+		if(player.isWhite())
+			currentState.updateGraph(new Moves.Move(currentIndex, nextIndex, arrowIndex), Tile.BLACK);
+		else
+			currentState.updateGraph(new Moves.Move(currentIndex, nextIndex, arrowIndex), Tile.WHITE);
+	}
+
+	public Map<String, Object> makeMove() throws NullPointerException {
+		movesMap = Moves.allMoves(currentState, player);
+
+		float bestHeuristic = 0;
+		Moves.Move bestMove = null;
+
+		for (Map.Entry<Moves.Move, Graph> entry : movesMap.entrySet()) {
+			float h = Heuristic.calculateT(entry.getValue(), player);
+
+			if ((player.isWhite() && h > bestHeuristic) || (player.isBlack() || h < bestHeuristic)) {
+				bestHeuristic = h;
+				bestMove = entry.getKey();
+			}
+		}
+
+		if(bestMove == null) throw new NullPointerException();
+
+		Map<String, Object> msgDetails = new HashMap<>();
+		msgDetails.put(AmazonsGameMessage.QUEEN_POS_CURR, indexToArrayList(bestMove.currentIndex()));
+		msgDetails.put(AmazonsGameMessage.Queen_POS_NEXT, indexToArrayList(bestMove.nextIndex()));
+		msgDetails.put(AmazonsGameMessage.ARROW_POS, indexToArrayList(bestMove.arrowIndex()));
+
+		currentState = movesMap.get(bestMove);
+
+		return msgDetails;
+	}
+
 
 }
