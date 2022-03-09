@@ -193,6 +193,20 @@ public class Graph {
         return sb.toString();
     }
 
+    @Override
+    public boolean equals(Object o){
+        if(!(o instanceof Graph)) return false;
+
+        Graph g = (Graph) o;
+
+        if(nodes.size() != g.nodes.size()) return false;
+
+        for(int i = 0; i < nodes.size(); i++){
+            if(!nodes.get(i).equals(g.getNodes().get(i))) return false;
+        }
+
+        return true;
+    }
 
     public static class Edge {
 
@@ -366,7 +380,7 @@ public class Graph {
 
         @Override
         public boolean equals(Object o) {
-            return o instanceof Node n && n.index == index;
+            return o instanceof Node n && n.index == index && n.value == value;
         }
 
         @Override
