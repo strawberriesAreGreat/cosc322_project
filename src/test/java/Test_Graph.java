@@ -29,12 +29,8 @@ class Test_Graph {
         };
 
         Graph original = new Graph(copyTestBoard);
-        Graph shallowCopy = original;
         Graph deepCopy = Graph.copy(original);
-
-        Assertions.assertEquals(original, shallowCopy);
-        Assertions.assertNotEquals(original, deepCopy);
-
+        
         for(Graph.Node n : original.getNodes()){
             Graph.Node nCopy = deepCopy.getNodes().get(n.getIndex());
 
