@@ -105,10 +105,6 @@ public class COSC322Test extends GamePlayer{
 					//Make our move
 					Map<String, Object> moveDetails = gameStateManager.makeMove();
 
-//					ArrayList<Integer> moveCurrent = (ArrayList<Integer>) moveDetails.get(AmazonsGameMessage.QUEEN_POS_CURR);
-//					ArrayList<Integer> moveNext = (ArrayList<Integer>) moveDetails.get(AmazonsGameMessage.QUEEN_POS_CURR);
-//					ArrayList<Integer> moveArrow = (ArrayList<Integer>) moveDetails.get(AmazonsGameMessage.QUEEN_POS_CURR);
-
 					gameGui.updateGameState(moveDetails);
 					gameClient.sendMoveMessage(moveDetails);
 
@@ -122,7 +118,7 @@ public class COSC322Test extends GamePlayer{
 		System.out.println("MSG Type:" + messageType);
 		System.out.println("MSG Details: " + msgDetails);
     	    	
-    	return true;   	
+    	return true;
     }
     
     

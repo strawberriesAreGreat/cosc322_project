@@ -116,21 +116,21 @@ public class GameStateManager{
 	// Current X and Y of Queen
 	public int getQueenCurrentIndex (Map<String, Object> msgDetails) {
 		ArrayList<Integer> current = (ArrayList<Integer>) msgDetails.get(AmazonsGameMessage.QUEEN_POS_CURR);
-		return current.get(0) * ROW_LENGTH + current.get(1);
+		return (current.get(0)-1) * ROW_LENGTH + (current.get(1)-1);
 	}
 
 	public int getQueenNextIndex (Map<String, Object> msgDetails) {
 		ArrayList<Integer> next = (ArrayList<Integer>) msgDetails.get(AmazonsGameMessage.Queen_POS_NEXT);
-		return next.get(0) * ROW_LENGTH + next.get(1);
+		return (next.get(0)-1) * ROW_LENGTH + (next.get(1)-1);
 	}
 
 	public int getArrowIndex (Map<String, Object> msgDetails) {
 		ArrayList<Integer> arrow = (ArrayList<Integer>) msgDetails.get(AmazonsGameMessage.ARROW_POS);
-		return arrow.get(0) * ROW_LENGTH + arrow.get(1);
+		return (arrow.get(0)-1) * ROW_LENGTH + (arrow.get(1)-1);
 	}
 
 	private ArrayList<Integer> indexToArrayList(int index){
-		ArrayList<Integer> list = new ArrayList(2);
+		ArrayList<Integer> list = new ArrayList<>(2);
 		list.add(ROW_LENGTH - (index / ROW_LENGTH));
 		list.add((index % ROW_LENGTH) + 1);
 		return list;
