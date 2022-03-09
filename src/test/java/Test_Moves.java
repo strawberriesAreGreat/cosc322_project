@@ -90,10 +90,7 @@ class Test_Moves {
         move3_arrow2.updateGraph(2, 8, 5, GameStateManager.Tile.BLACK);
 
         List<Graph> moveList = Moves.allMoves(initialGraph, GameStateManager.Tile.BLACK);
-
-        System.out.println(moveList.get(0));
-        System.out.println(move1_arrow1);
-
+        
         Assertions.assertEquals(8, moveList.size());
         Assertions.assertTrue(moveList.contains(move1_arrow1));
         Assertions.assertTrue(moveList.contains(move1_arrow2));
