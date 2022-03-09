@@ -6,7 +6,7 @@ import java.util.List;
 public class Node<T> {
 //variables
     private Node <T> parent = null;
-    private List<Node<T>> children = new ArrayList <Node<T>> ();
+    private List<Node<T>> children = new ArrayList<> ();
     private T heuristic = null;
 
 
@@ -26,7 +26,7 @@ public class Node<T> {
     }
 
     public boolean isLeaf() {
-        return this.children.size() == 0;
+        return this.children.isEmpty();
     }
 
 
@@ -51,7 +51,7 @@ public class Node<T> {
 
 //create, append, and delete 
     public void createChild(T heuristic) {
-        Node<T> kid = new Node<T>(heuristic);
+        Node<T> kid = new Node<>(heuristic);
         kid.setParent(this);
         this.children.add(kid);
     }
