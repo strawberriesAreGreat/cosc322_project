@@ -169,7 +169,6 @@ public class GameStateManager{
 	/**
 	 * Calculates the best possible move from the current state of the board.
 	 * @return An Map containing movement information
-	 * @throws NullPointerException Thrown when a move isn't selected.
 	 */
 	public Map<String, Object> makeMove() throws InterruptedException {
 		//Generate a list of all possible legal moves from the current game state
