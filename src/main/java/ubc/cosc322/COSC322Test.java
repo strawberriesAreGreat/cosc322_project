@@ -2,12 +2,9 @@
 package ubc.cosc322;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.Map;
-
 import ygraph.ai.smartfox.games.*;
 import ygraph.ai.smartfox.games.amazons.AmazonsGameMessage;
-import ygraph.ai.smartfox.games.amazons.HumanPlayer;
 
 /**
  * An example illustrating how to implement a GamePlayer

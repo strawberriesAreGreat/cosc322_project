@@ -146,24 +146,38 @@ public class GameStateManager{
 	}
 
 
-	public void opponentMove(Map<String, Object> msgDetails){
-		int currentIndex = getQueenCurrentIndex(msgDetails);
-		int nextIndex = getQueenNextIndex(msgDetails);
-		int arrowIndex = getArrowIndex(msgDetails);
+	//TODO Rework the following methods to interact with the minimax tree
 
-		//
+	/**
+	 * Takes information from the opponents move and updates the board state graph accordingly
+	 * @param opponentMove Opponent move information
+	 */
+	public void opponentMove(Map<String, Object> opponentMove){
+		//Translate the x y coordinates to the graph node index
+		int currentIndex = getQueenCurrentIndex(opponentMove);
+		int nextIndex = getQueenNextIndex(opponentMove);
+		int arrowIndex = getArrowIndex(opponentMove);
+
+		//Update the graph
 		if(player.isWhite())
 			currentState.updateGraph(new Moves.Move(currentIndex, nextIndex, arrowIndex), Tile.BLACK);
 		else
 			currentState.updateGraph(new Moves.Move(currentIndex, nextIndex, arrowIndex), Tile.WHITE);
 	}
 
+	/**
+	 * Calculates the best possible move from the current state of the board.
+	 * @return An Map containing movement information
+	 * @throws NullPointerException Thrown when a move isn't selected.
+	 */
 	public Map<String, Object> makeMove() throws NullPointerException {
+		//Generate a list of all possible legal moves from the current game state
 		movesMap = Moves.allMoves(currentState, player);
 
 		float bestHeuristic = 0;
 		Moves.Move bestMove = null;
 
+		//Calculate the best move using the heuristic T calculation
 		for (Map.Entry<Moves.Move, Graph> entry : movesMap.entrySet()) {
 			float h = Heuristic.calculateT(entry.getValue(), player);
 
@@ -173,16 +187,19 @@ public class GameStateManager{
 			}
 		}
 
+		//A move should always be selected
 		if(bestMove == null) throw new NullPointerException();
 
-		Map<String, Object> msgDetails = new HashMap<>();
-		msgDetails.put(AmazonsGameMessage.QUEEN_POS_CURR, indexToArrayList(bestMove.currentIndex()));
-		msgDetails.put(AmazonsGameMessage.Queen_POS_NEXT, indexToArrayList(bestMove.nextIndex()));
-		msgDetails.put(AmazonsGameMessage.ARROW_POS, indexToArrayList(bestMove.arrowIndex()));
+		//Put the move information into a message details object to send back to the game server
+		Map<String, Object> playerMove = new HashMap<>();
+		playerMove.put(AmazonsGameMessage.QUEEN_POS_CURR, indexToArrayList(bestMove.currentIndex()));
+		playerMove.put(AmazonsGameMessage.Queen_POS_NEXT, indexToArrayList(bestMove.nextIndex()));
+		playerMove.put(AmazonsGameMessage.ARROW_POS, indexToArrayList(bestMove.arrowIndex()));
 
+		//Don't forget to update the current state of the game!
 		currentState = movesMap.get(bestMove);
 
-		return msgDetails;
+		return playerMove;
 	}
 
 
