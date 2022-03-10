@@ -88,9 +88,14 @@ public class COSC322Test extends GamePlayer{
 				gameStateManager.opponentMove(msgDetails);
 
 				//Make our move
-				Map<String, Object> moveDetails = gameStateManager.makeMove();
-				gameGui.updateGameState(moveDetails);
-				gameClient.sendMoveMessage(moveDetails);
+				try {
+					Map<String, Object> moveDetails = gameStateManager.makeMove();
+					gameGui.updateGameState(moveDetails);
+					gameClient.sendMoveMessage(moveDetails);
+				} catch (InterruptedException e){
+					e.printStackTrace();
+					return false;
+				}
 			}
 			case GameMessage.GAME_ACTION_START -> {
 
@@ -100,10 +105,15 @@ public class COSC322Test extends GamePlayer{
 					gameStateManager.setPlayer(GameStateManager.Tile.WHITE);
 
 					//Make our move
-					Map<String, Object> moveDetails = gameStateManager.makeMove();
+					try {
+						Map<String, Object> moveDetails = gameStateManager.makeMove();
 
-					gameGui.updateGameState(moveDetails);
-					gameClient.sendMoveMessage(moveDetails);
+						gameGui.updateGameState(moveDetails);
+						gameClient.sendMoveMessage(moveDetails);
+					} catch (InterruptedException e){
+						e.printStackTrace();
+						return false;
+					}
 
 				} else {
 					gameStateManager.setPlayer(GameStateManager.Tile.BLACK);

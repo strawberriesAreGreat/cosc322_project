@@ -121,22 +121,22 @@ public class GameStateManager{
 
 	// Takes the message Details that are stored in the array and retrieves the position of:
 	// Current X and Y of Queen
-	public int getQueenCurrentIndex (Map<String, Object> msgDetails) {
+	public static int getQueenCurrentIndex (Map<String, Object> msgDetails) {
 		ArrayList<Integer> current = (ArrayList<Integer>) msgDetails.get(AmazonsGameMessage.QUEEN_POS_CURR);
 		return (ROW_LENGTH - current.get(0)) * ROW_LENGTH + (current.get(1)-1);
 	}
 
-	public int getQueenNextIndex (Map<String, Object> msgDetails) {
+	public static int getQueenNextIndex (Map<String, Object> msgDetails) {
 		ArrayList<Integer> next = (ArrayList<Integer>) msgDetails.get(AmazonsGameMessage.Queen_POS_NEXT);
 		return (ROW_LENGTH - next.get(0)) * ROW_LENGTH + (next.get(1)-1);
 	}
 
-	public int getArrowIndex (Map<String, Object> msgDetails) {
+	public static int getArrowIndex (Map<String, Object> msgDetails) {
 		ArrayList<Integer> arrow = (ArrayList<Integer>) msgDetails.get(AmazonsGameMessage.ARROW_POS);
 		return (ROW_LENGTH - arrow.get(0)) * ROW_LENGTH + (arrow.get(1)-1);
 	}
 
-	private ArrayList<Integer> indexToArrayList(int index){
+	public static ArrayList<Integer> indexToArrayList(int index){
 		ArrayList<Integer> list = new ArrayList<>(2);
 		//Y Position
 		list.add((int) Math.ceil(ROW_LENGTH - ((float) index/ROW_LENGTH)));
@@ -163,6 +163,7 @@ public class GameStateManager{
 			currentState.updateGraph(new Moves.Move(currentIndex, nextIndex, arrowIndex), Tile.BLACK);
 		else
 			currentState.updateGraph(new Moves.Move(currentIndex, nextIndex, arrowIndex), Tile.WHITE);
+
 	}
 
 	/**
@@ -170,25 +171,28 @@ public class GameStateManager{
 	 * @return An Map containing movement information
 	 * @throws NullPointerException Thrown when a move isn't selected.
 	 */
-	public Map<String, Object> makeMove() throws NullPointerException {
+	public Map<String, Object> makeMove() throws InterruptedException {
 		//Generate a list of all possible legal moves from the current game state
 		movesMap = Moves.allMoves(currentState, player);
 
-		float bestHeuristic = 0;
+		float bestHeuristic = player.isWhite() ? Integer.MIN_VALUE : Integer.MAX_VALUE;
 		Moves.Move bestMove = null;
 
 		//Calculate the best move using the heuristic T calculation
 		for (Map.Entry<Moves.Move, Graph> entry : movesMap.entrySet()) {
 			float h = Heuristic.calculateT(entry.getValue(), player);
 
-			if ((player.isWhite() && h > bestHeuristic) || (player.isBlack() || h < bestHeuristic)) {
+			if ((player.isWhite() && h > bestHeuristic) || (player.isBlack() && h < bestHeuristic)) {
 				bestHeuristic = h;
 				bestMove = entry.getKey();
 			}
 		}
 
-		//A move should always be selected
-		if(bestMove == null) throw new NullPointerException();
+		//No move was found, we lost.
+		if(bestMove == null) {
+			System.out.println("##### WE LOST #####");
+			System.exit(0);
+		}
 
 		//Put the move information into a message details object to send back to the game server
 		Map<String, Object> playerMove = new HashMap<>();
@@ -198,6 +202,8 @@ public class GameStateManager{
 
 		//Don't forget to update the current state of the game!
 		currentState = movesMap.get(bestMove);
+
+		Thread.sleep(3000);
 
 		return playerMove;
 	}

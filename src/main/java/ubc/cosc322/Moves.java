@@ -78,8 +78,27 @@ public class Moves {
         return playerNodes;
     }
 
-    public record Move(int currentIndex, int nextIndex, int arrowIndex){}
+    public record Move(int currentIndex, int nextIndex, int arrowIndex){
 
+        @Override
+        public String toString(){
+            StringBuilder sb = new StringBuilder();
 
+            ArrayList<Integer> curr = GameStateManager.indexToArrayList(currentIndex);
+            ArrayList<Integer> next = GameStateManager.indexToArrayList(nextIndex);
+            ArrayList<Integer> arrow = GameStateManager.indexToArrayList(arrowIndex);
+
+            sb.append("QCurr: [").append(curr.get(0)).append(", ").append(toLetter(curr.get(1))).append("]\n");
+            sb.append("QNext: [").append(next.get(0)).append(", ").append(toLetter(next.get(1))).append("]\n");
+            sb.append("Arrow: [").append(arrow.get(0)).append(", ").append(toLetter(arrow.get(1))).append("]\n");
+
+            return sb.toString();
+        }
+
+        private char toLetter(int x){
+            return (char) (x + 'a' - 1);
+        }
+
+    }
 
 }

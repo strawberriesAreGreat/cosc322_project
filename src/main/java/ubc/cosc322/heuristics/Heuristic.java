@@ -5,6 +5,10 @@ import ygraph.ai.smartfox.games.GameStateManager;
 
 public class Heuristic {
 
+    private Heuristic(){
+
+    }
+
     public static float calculateT(Graph board, GameStateManager.Tile turn){
         float w = calculateW(board);
 

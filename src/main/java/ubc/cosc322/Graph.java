@@ -14,7 +14,7 @@ public class Graph {
      * @return a copy of the source graph
      */
     public static Graph copy(Graph source){
-        Graph copy = new Graph(source.nodes.size());
+        Graph copy = new Graph(source.nodes.size(), source.height, source.width);
         for (Node n: source.getNodes()) {
             copy.nodes.add(Node.copy(n));
         }
@@ -36,18 +36,22 @@ public class Graph {
     }
 
     private final List<Node> nodes;
+    private final int height;
+    private final int width;
 
-    private Graph(int size){
+    private Graph(int size, int height, int width){
+        this.height = height;
+        this.width = width;
         nodes = new ArrayList<>(size);
     }
 
     public Graph(int[][] board) {
-        int rowLength = board.length;
+        height = board.length;
+        width = board[0].length;
 
-        nodes = new ArrayList<>(rowLength * board[0].length);
+        nodes = new ArrayList<>(height * width);
 
         initializeGraph(board);
-
     }
 
     /**
@@ -59,36 +63,38 @@ public class Graph {
 
         if(!player.isPlayer()) return;
 
-        //Set current to empty
-        Node currNode = nodes.get(move.currentIndex());
-        currNode.setValue(GameStateManager.Tile.EMPTY);
 
+        Node currNode = nodes.get(move.currentIndex());
+        Node arrowNode = nodes.get(move.arrowIndex());
+        Node nextNode = nodes.get(move.nextIndex());
+        if(currNode.value != player || !nextNode.isEmpty() || (!arrowNode.isEmpty() && arrowNode.index != currNode.index)){
+            System.out.println("##### ILLEGAL MOVE #####");
+            System.exit(1);
+        }
+
+        //Set current to empty
+        currNode.setValue(GameStateManager.Tile.EMPTY);
         //Enable edges for all connected nodes
         toggleConnectedNodeEdges(currNode, true);
 
         //Set next to player
-        Node nextNode = nodes.get(move.nextIndex());
         nextNode.setValue(player);
-
         //Disable edges for all connected nodes
         toggleConnectedNodeEdges(nextNode, false);
 
         //Set arrow to arrow
-        Node arrowNode = nodes.get(move.arrowIndex());
         arrowNode.setValue(GameStateManager.Tile.FIRE);
 
         //Disable edges for all connected nodes
         toggleConnectedNodeEdges(arrowNode, false);
 
+        //Refresh the distances for all nodes
         updateDistances();
     }
 
     private void initializeGraph(int[][] board){
 
         createNodes(board);
-
-        int height = board.length;
-        int width = board[0].length;
 
         //Connect nodes to their neighbors
         for(int y = 0; y < height; y++){
@@ -160,9 +166,9 @@ public class Graph {
     }
 
     private void createNodes(int[][] board){
-        for(int y = 0; y < board.length; y++){
-            for(int x = 0; x < board[0].length; x++){
-                int index = y * board[0].length + x;
+        for(int y = 0; y < height; y++){
+            for(int x = 0; x < width; x++){
+                int index = y * width + x;
                 Node n = new Node(index, GameStateManager.Tile.valueOf(board[y][x]));
                 nodes.add(n);
             }
@@ -198,13 +204,14 @@ public class Graph {
     public String toString(){
         StringBuilder sb = new StringBuilder();
 
-        for(Node n : nodes){
-            sb.append("Node: ").append(n.index).append(" {").append(n.value).append("}").append(" Connected to: ");
-            for(Edge e : n.edges) {
-                if(e.enabled)
-                    sb.append(e.other.index).append(" ").append(e.direction).append(", ");
+        for(int y = 0; y < height; y++){
+            sb.append("[ ");
+            for(int x = 0; x < width; x++){
+                int index = y * width + x;
+                Node n = nodes.get(index);
+                sb.append(n.value.id).append(" ");
             }
-            sb.append("\n");
+            sb.append("]\n");
         }
 
         return sb.toString();
