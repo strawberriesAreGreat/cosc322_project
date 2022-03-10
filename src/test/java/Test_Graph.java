@@ -2,6 +2,7 @@ import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import ubc.cosc322.Graph;
+import ubc.cosc322.Moves;
 import ygraph.ai.smartfox.games.GameStateManager;
 
 class Test_Graph {
@@ -24,8 +25,8 @@ class Test_Graph {
     @Test
     void test_copy(){
         int[][] copyTestBoard = {
-                {0, 3},
-                {3, 1}
+                {0, 3, 0},
+                {3, 1, 1}
         };
 
         Graph original = new Graph(copyTestBoard);
@@ -97,7 +98,7 @@ class Test_Graph {
 
     @Test
     void test_updateGraph(){
-        g.updateGraph(6, 12, 14, GameStateManager.Tile.WHITE);
+        g.updateGraph(new Moves.Move(6, 12, 14), GameStateManager.Tile.WHITE);
 
         Graph.Node currentNode = g.getNodes().get(6);
         Graph.Node nextNode = g.getNodes().get(12);
@@ -119,7 +120,7 @@ class Test_Graph {
 
     @Test
     void test_updateGraph_InvalidPlayer() {
-        g.updateGraph(6, 12, 14, GameStateManager.Tile.FIRE);
+        g.updateGraph(new Moves.Move(6, 12, 14), GameStateManager.Tile.FIRE);
 
         Graph.Node currentNode = g.getNodes().get(6);
         Graph.Node nextNode = g.getNodes().get(12);

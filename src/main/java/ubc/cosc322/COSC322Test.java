@@ -2,12 +2,9 @@
 package ubc.cosc322;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.Map;
-
 import ygraph.ai.smartfox.games.*;
 import ygraph.ai.smartfox.games.amazons.AmazonsGameMessage;
-import ygraph.ai.smartfox.games.amazons.HumanPlayer;
 
 /**
  * An example illustrating how to implement a GamePlayer
@@ -88,31 +85,47 @@ public class COSC322Test extends GamePlayer{
 				gameGui.updateGameState(msgDetails);
 
 				//Update GameStateManager board state
+				gameStateManager.opponentMove(msgDetails);
 
 				//Make our move
-
+				try {
+					Map<String, Object> moveDetails = gameStateManager.makeMove();
+					gameGui.updateGameState(moveDetails);
+					gameClient.sendMoveMessage(moveDetails);
+				} catch (InterruptedException e){
+					e.printStackTrace();
+					return false;
+				}
 			}
 			case GameMessage.GAME_ACTION_START -> {
 
 				//Make a move if the bot starts as white
 				String white = (String) msgDetails.get(AmazonsGameMessage.PLAYER_WHITE);
 				if(white.equalsIgnoreCase(userName)){
-					System.out.println("BOT START");
-					//Make a move
+					gameStateManager.setPlayer(GameStateManager.Tile.WHITE);
+
+					//Make our move
+					try {
+						Map<String, Object> moveDetails = gameStateManager.makeMove();
+
+						gameGui.updateGameState(moveDetails);
+						gameClient.sendMoveMessage(moveDetails);
+					} catch (InterruptedException e){
+						e.printStackTrace();
+						return false;
+					}
 
 				} else {
-					System.out.println("OPPONENT START");
+					gameStateManager.setPlayer(GameStateManager.Tile.BLACK);
 				}
 			}
-			case GameMessage.GAME_STATE_PLAYER_LOST -> {
-				// Stop bot?
-			}
+			default -> System.out.println("Unhandled message type.");
 		}
 
 		System.out.println("MSG Type:" + messageType);
 		System.out.println("MSG Details: " + msgDetails);
     	    	
-    	return true;   	
+    	return true;
     }
     
     
