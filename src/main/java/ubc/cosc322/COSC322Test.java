@@ -107,7 +107,6 @@ public class COSC322Test extends GamePlayer{
 					//Make our move
 					try {
 						Map<String, Object> moveDetails = gameStateManager.makeMove();
-
 						gameGui.updateGameState(moveDetails);
 						gameClient.sendMoveMessage(moveDetails);
 					} catch (InterruptedException e){

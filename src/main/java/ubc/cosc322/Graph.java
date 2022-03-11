@@ -38,6 +38,7 @@ public class Graph {
     private final List<Node> nodes;
     private final int height;
     private final int width;
+    private float heuristicValue;
 
     private Graph(int size, int height, int width){
         this.height = height;
@@ -198,6 +199,13 @@ public class Graph {
 
     public List<Node> getNodes(){
         return nodes;
+    }
+    
+    public void setHeuristicValue(float value) {
+        this.heuristicValue = value;
+    }
+    public float getHeuristicValue() {
+        return this.heuristicValue;
     }
 
     @Override

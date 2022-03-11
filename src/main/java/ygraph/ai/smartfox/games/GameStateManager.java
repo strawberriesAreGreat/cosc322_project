@@ -2,6 +2,7 @@ package ygraph.ai.smartfox.games;
 
 import ubc.cosc322.Graph;
 import ubc.cosc322.Moves;
+import ubc.cosc322.SearchTree;
 import ubc.cosc322.heuristics.Heuristic;
 import ygraph.ai.smartfox.games.amazons.AmazonsGameMessage;
 
@@ -76,6 +77,8 @@ public class GameStateManager{
 			{0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
 			{0, 0, 0, 1, 0, 0, 1, 0, 0, 0},
 	};
+	
+	
 
 	public static int[][] getInitialBoardState(){
 		return INITIAL_BOARD_STATE;
@@ -127,7 +130,7 @@ public class GameStateManager{
 	}
 
 	public static int getQueenNextIndex (Map<String, Object> msgDetails) {
-		ArrayList<Integer> next = (ArrayList<Integer>) msgDetails.get(AmazonsGameMessage.Queen_POS_NEXT);
+		ArrayList<Integer> next = (ArrayList<Integer>) msgDetails.get(AmazonsGameMessage.QUEEN_POS_NEXT);
 		return (ROW_LENGTH - next.get(0)) * ROW_LENGTH + (next.get(1)-1);
 	}
 
@@ -172,21 +175,37 @@ public class GameStateManager{
 	 */
 	public Map<String, Object> makeMove() throws InterruptedException {
 		//Generate a list of all possible legal moves from the current game state
+		
+//		movesMap = Moves.allMoves(currentState, player);
+//
+//		float bestHeuristic = player.isWhite() ? Integer.MIN_VALUE : Integer.MAX_VALUE;
+//		Moves.Move bestMove = null;
+//
+//		//Calculate the best move using the heuristic T calculation
+//		for (Map.Entry<Moves.Move, Graph> entry : movesMap.entrySet()) {
+//			float h = Heuristic.calculateT(entry.getValue(), player);
+//
+//			if ((player.isWhite() && h > bestHeuristic) || (player.isBlack() && h < bestHeuristic)) {
+//				bestHeuristic = h;
+//				bestMove = entry.getKey();
+//			}
+//		}
+
 		movesMap = Moves.allMoves(currentState, player);
-
-		float bestHeuristic = player.isWhite() ? Integer.MIN_VALUE : Integer.MAX_VALUE;
-		Moves.Move bestMove = null;
-
-		//Calculate the best move using the heuristic T calculation
-		for (Map.Entry<Moves.Move, Graph> entry : movesMap.entrySet()) {
-			float h = Heuristic.calculateT(entry.getValue(), player);
-
-			if ((player.isWhite() && h > bestHeuristic) || (player.isBlack() && h < bestHeuristic)) {
-				bestHeuristic = h;
-				bestMove = entry.getKey();
-			}
+		
+		System.out.println("current branch factor:" + movesMap.size());
+		SearchTree alphabeta = new SearchTree();
+		Graph tempState = Graph.copy(currentState);
+		Moves.Move bestMove;
+		if (movesMap.size() > 500)
+		{
+			bestMove = alphabeta.performAlphaBeta(tempState, player,1);
+		} else {
+			bestMove = alphabeta.performAlphaBeta(tempState, player,2);
 		}
 
+		
+		
 		//No move was found, we lost.
 		if(bestMove == null) {
 			System.out.println("##### WE LOST #####");
@@ -196,13 +215,12 @@ public class GameStateManager{
 		//Put the move information into a message details object to send back to the game server
 		Map<String, Object> playerMove = new HashMap<>();
 		playerMove.put(AmazonsGameMessage.QUEEN_POS_CURR, indexToArrayList(bestMove.currentIndex()));
-		playerMove.put(AmazonsGameMessage.Queen_POS_NEXT, indexToArrayList(bestMove.nextIndex()));
+		playerMove.put(AmazonsGameMessage.QUEEN_POS_NEXT, indexToArrayList(bestMove.nextIndex()));
 		playerMove.put(AmazonsGameMessage.ARROW_POS, indexToArrayList(bestMove.arrowIndex()));
 
 		//Don't forget to update the current state of the game!
 		currentState = movesMap.get(bestMove);
-
-		Thread.sleep(3000);
+//		Thread.sleep(3000);
 
 		return playerMove;
 	}
