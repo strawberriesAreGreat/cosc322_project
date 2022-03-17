@@ -34,79 +34,153 @@ public class SearchTree {
      * @param maxPlayer: boolean indicating whether or not we're attempting to maximize alpha
      * @return: an int representing the weighting of the move
      */
-    private float AlphaBeta(Graph N, int D, int alpha, int beta, Tile player) {
+//    private float AlphaBeta(Graph N, int D, float alpha, float beta, Tile player) {
+//        if (D == 0 ) {
+//        	
+//          float hval = Heuristic.calculateT(N, player);
+//          N.setHeuristicValue(hval);
+//          return hval;
+//        	
+//        	
+//        }
+//    	
+//        if (player.isWhite()) {
+//        	
+//            float V = Integer.MIN_VALUE;
+//            Map<Moves.Move, Graph> movesMap = Moves.allMoves(N, player);
+//            
+//            for (Map.Entry<Moves.Move, Graph> entry : movesMap.entrySet()) {
+//                V = Math.max(V, AlphaBeta(entry.getValue(), D - 1, alpha, beta, Tile.BLACK));
+//                alpha = Math.max(alpha, V);
+//                if (beta <= alpha) {
+//                    break;
+//                }
+//            }
+//            N.setHeuristicValue(V);
+//            return V;
+//
+//        } else {
+//        	
+//        	float V = Integer.MAX_VALUE;
+//            Map<Moves.Move, Graph> movesMap = Moves.allMoves(N, player);
+//            for (Map.Entry<Moves.Move, Graph> entry : movesMap.entrySet()) {
+//                V = Math.min(V, AlphaBeta(entry.getValue(), D - 1, alpha, beta, Tile.WHITE));
+//                beta = Math.min(beta, V);
+//                if (beta <= alpha)
+//                    break;
+//            }
+//            N.setHeuristicValue(V);
+//            return V;
+//        }
+//    }
+//    
+//    
+    private float AlphaBeta(SearchTreeNode node, int D, float alpha, float beta, Tile player) {
         if (D == 0 ) {
-          float hval = Heuristic.calculateT(N, player);
-          N.setHeuristicValue(hval);
+        	
+          float hval = Heuristic.calculateT(node.graph, player);
+          node.graph.setHeuristicValue(hval);
           return hval;
+        	
+        	
         }
     	
         if (player.isWhite()) {
         	
-            int V = Integer.MIN_VALUE;
-            Map<Moves.Move, Graph> movesMap = Moves.allMoves(N, player);
+            float V = Integer.MIN_VALUE;
+//            Map<Moves.Move, Graph> movesMap = Moves.allMoves(N, player);
             
-            for (Map.Entry<Moves.Move, Graph> entry : movesMap.entrySet()) {
-                V = (int) Math.max(V, AlphaBeta(entry.getValue(), D - 1, alpha, beta, Tile.BLACK));
+            
+            for (SearchTreeNode child : node.children) {
+                V = Math.max(V, AlphaBeta(child, D - 1, alpha, beta, Tile.BLACK));
                 alpha = Math.max(alpha, V);
                 if (beta <= alpha) {
                     break;
                 }
             }
-            N.setHeuristicValue(V);
+            node.graph.setHeuristicValue(V);
             return V;
 
         } else {
         	
-            int V = Integer.MAX_VALUE;
-            Map<Moves.Move, Graph> movesMap = Moves.allMoves(N, player);
-            for (Map.Entry<Moves.Move, Graph> entry : movesMap.entrySet()) {
-                V = (int) Math.min(V, AlphaBeta(entry.getValue(), D - 1, alpha, beta, Tile.WHITE));
+        	float V = Integer.MAX_VALUE;
+ 
+            for (SearchTreeNode child : node.children) {
+                V = Math.min(V, AlphaBeta(child, D - 1, alpha, beta, Tile.WHITE));
                 beta = Math.min(beta, V);
                 if (beta <= alpha)
                     break;
             }
-            N.setHeuristicValue(V);
+            node.graph.setHeuristicValue(V);
             return V;
         }
     }
     
     
-    
-    private Moves.Move getMoveAfterAlphaBeta(Graph N,Tile player) {
+    private Moves.Move getMoveAfterAlphaBeta(SearchTreeNode root) {
         Moves.Move bestMove = null;
-        Map<Moves.Move, Graph> movesMap = Moves.allMoves(N, player);    	
-        
-    	if (player.isWhite()) {
-            int max = Integer.MIN_VALUE;
+    	
+//    	if (root.player.isWhite()) {
+//            float max = Integer.MIN_VALUE;
+//
+//            for (Map.Entry<Moves.Move, Graph> entry : movesMap.entrySet()) {
+//                if (max < entry.getValue().getHeuristicValue()) {
+//                    max = entry.getValue().getHeuristicValue();
+//                    bestMove = entry.getKey();
+//                }
+//            }
+//            System.out.print("best move:" +  bestMove.toString());
+//            return bestMove;
+//    	} else {
+//            float min = Integer.MAX_VALUE;
+//            for (Map.Entry<Moves.Move, Graph> entry : movesMap.entrySet()) {
+//            	
+//                if (min > entry.getValue().getHeuristicValue()) {
+//                	min = entry.getValue().getHeuristicValue();
+//                    bestMove = entry.getKey();
+//                }
+//            }
+////            System.out.print("best move:" +  bestMove.toString());
+//            return bestMove;
+//    	}
 
-            for (Map.Entry<Moves.Move, Graph> entry : movesMap.entrySet()) {
-                if (max < entry.getValue().getHeuristicValue()) {
-                    max = (int) entry.getValue().getHeuristicValue();
-                    bestMove = entry.getKey();
+    	
+    	if (root.player.isWhite()) {
+            float max = Integer.MIN_VALUE;
+
+            for (SearchTreeNode node : root.children) {
+                if (max < node.graph.getHeuristicValue()) {
+                    max = node.graph.getHeuristicValue();
+                    bestMove = node.move;
                 }
             }
             System.out.print("best move:" +  bestMove.toString());
             return bestMove;
     	} else {
-            int min = Integer.MAX_VALUE;
-            for (Map.Entry<Moves.Move, Graph> entry : movesMap.entrySet()) {
-                if (min > entry.getValue().getHeuristicValue()) {
-                	min = (int) entry.getValue().getHeuristicValue();
-                    bestMove = entry.getKey();
+            float min = Integer.MAX_VALUE;
+            for (SearchTreeNode node : root.children) {
+            	
+                if (min > node.graph.getHeuristicValue()) {
+                    min = node.graph.getHeuristicValue();
+                    bestMove = node.move;
                 }
             }
-            System.out.print("best move:" +  bestMove.toString());
+//            System.out.print("best move:" +  bestMove.toString());
             return bestMove;
     	}
-
+    	
+    	
     } // end of getMoveAfterAlphaBeta
 
     
-    public Moves.Move performAlphaBeta(Graph node,Tile player, int depth) {
-        AlphaBeta(node, depth, Integer.MIN_VALUE, Integer.MAX_VALUE, player);
-        Moves.Move move = getMoveAfterAlphaBeta(node,player);
-        return move;
+    public Moves.Move performAlphaBeta(SearchTreeNode root) {
+
+//        AlphaBeta(node, depth, Integer.MIN_VALUE, Integer.MAX_VALUE, player);
+//        Moves.Move move = getMoveAfterAlphaBeta(node,player,movesMap);
+//        return move;
+    	AlphaBeta(root, root.depth, Integer.MIN_VALUE, Integer.MAX_VALUE, root.player);
+    	Moves.Move move = getMoveAfterAlphaBeta(root);
+    	return move;
     }
 
 

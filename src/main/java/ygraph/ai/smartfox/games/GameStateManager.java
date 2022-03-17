@@ -3,6 +3,7 @@ package ygraph.ai.smartfox.games;
 import ubc.cosc322.Graph;
 import ubc.cosc322.Moves;
 import ubc.cosc322.SearchTree;
+import ubc.cosc322.SearchTreeNode;
 import ubc.cosc322.heuristics.Heuristic;
 import ygraph.ai.smartfox.games.amazons.AmazonsGameMessage;
 
@@ -17,7 +18,7 @@ public class GameStateManager{
 	//The second int representing the X value from right to left
 	//[10, 7] corresponds to [10, G] on the game board GUI.
 	//[5, 3] corresponds to [5, C] etc...
-
+	Moves.Move bestMove;
 	public enum Tile {
 		EMPTY(0),
 		WHITE(1),
@@ -192,19 +193,13 @@ public class GameStateManager{
 //		}
 
 		movesMap = Moves.allMoves(currentState, player);
+		SearchTreeNode root = new SearchTreeNode(bestMove,currentState,player,1); 
 		
-		System.out.println("current branch factor:" + movesMap.size());
 		SearchTree alphabeta = new SearchTree();
-		Graph tempState = Graph.copy(currentState);
-		Moves.Move bestMove;
-		if (movesMap.size() > 500)
-		{
-			bestMove = alphabeta.performAlphaBeta(tempState, player,1);
-		} else {
-			bestMove = alphabeta.performAlphaBeta(tempState, player,2);
-		}
-
-		
+		Moves.Move bestMove = alphabeta.performAlphaBeta(root);
+		System.out.println("current branch factor imannnnnn:" + movesMap.size());
+//
+//		
 		
 		//No move was found, we lost.
 		if(bestMove == null) {

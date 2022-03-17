@@ -31,6 +31,7 @@ public class Graph {
             }
 
         }
+        copy.heuristicValue = source.getHeuristicValue();
 
         return copy;
     }
@@ -307,6 +308,7 @@ public class Graph {
             copy.kdist2 = source.kdist2;
             copy.qdist1 = source.qdist1;
             copy.qdist2 = source.qdist2;
+            
 
             return copy;
         }
