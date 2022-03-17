@@ -130,7 +130,7 @@ public class GameStateManager{
 	}
 
 	public static int getQueenNextIndex (Map<String, Object> msgDetails) {
-		ArrayList<Integer> next = (ArrayList<Integer>) msgDetails.get(AmazonsGameMessage.QUEEN_POS_NEXT);
+		ArrayList<Integer> next = (ArrayList<Integer>) msgDetails.get(AmazonsGameMessage.Queen_POS_NEXT);
 		return (ROW_LENGTH - next.get(0)) * ROW_LENGTH + (next.get(1)-1);
 	}
 
@@ -215,7 +215,7 @@ public class GameStateManager{
 		//Put the move information into a message details object to send back to the game server
 		Map<String, Object> playerMove = new HashMap<>();
 		playerMove.put(AmazonsGameMessage.QUEEN_POS_CURR, indexToArrayList(bestMove.currentIndex()));
-		playerMove.put(AmazonsGameMessage.QUEEN_POS_NEXT, indexToArrayList(bestMove.nextIndex()));
+		playerMove.put(AmazonsGameMessage.Queen_POS_NEXT, indexToArrayList(bestMove.nextIndex()));
 		playerMove.put(AmazonsGameMessage.ARROW_POS, indexToArrayList(bestMove.arrowIndex()));
 
 		//Don't forget to update the current state of the game!

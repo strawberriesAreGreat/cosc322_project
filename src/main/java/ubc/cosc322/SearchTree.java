@@ -24,6 +24,8 @@ public class SearchTree {
  
     }
 
+    public record MinimaxMove(Moves.Move move, float heuristic){}
+
 
     /**
      * AlphaBeta: performs AlphaBeta search on a Node
@@ -34,79 +36,89 @@ public class SearchTree {
      * @param maxPlayer: boolean indicating whether or not we're attempting to maximize alpha
      * @return: an int representing the weighting of the move
      */
-    private float AlphaBeta(Graph N, int D, int alpha, int beta, Tile player) {
+    private MinimaxMove AlphaBeta(Graph N, int D, float alpha, float beta, Tile player, Moves.Move lastMove) {
         if (D == 0 ) {
           float hval = Heuristic.calculateT(N, player);
-          N.setHeuristicValue(hval);
-          return hval;
+          return new MinimaxMove(lastMove, hval);
         }
-    	
+
+        float V;
+        Moves.Move bestMove = null;
+        Map<Moves.Move, Graph> movesMap = Moves.allMoves(N, player);
+
         if (player.isWhite()) {
-        	
-            int V = Integer.MIN_VALUE;
-            Map<Moves.Move, Graph> movesMap = Moves.allMoves(N, player);
-            
+
+            V = Integer.MIN_VALUE;
+
             for (Map.Entry<Moves.Move, Graph> entry : movesMap.entrySet()) {
-                V = (int) Math.max(V, AlphaBeta(entry.getValue(), D - 1, alpha, beta, Tile.BLACK));
+                Moves.Move currentMove = entry.getKey();
+                float chosenHeuristic = AlphaBeta(entry.getValue(), D - 1, alpha, beta, Tile.BLACK, currentMove).heuristic;
+                if(V < chosenHeuristic){
+                    V = chosenHeuristic;
+                    bestMove = currentMove;
+                }
+
                 alpha = Math.max(alpha, V);
                 if (beta <= alpha) {
                     break;
                 }
             }
-            N.setHeuristicValue(V);
-            return V;
 
         } else {
-        	
-            int V = Integer.MAX_VALUE;
-            Map<Moves.Move, Graph> movesMap = Moves.allMoves(N, player);
+
+            V = Integer.MAX_VALUE;
+
             for (Map.Entry<Moves.Move, Graph> entry : movesMap.entrySet()) {
-                V = (int) Math.min(V, AlphaBeta(entry.getValue(), D - 1, alpha, beta, Tile.WHITE));
-                beta = Math.min(beta, V);
-                if (beta <= alpha)
+                float chosenHeuristic = AlphaBeta(entry.getValue(), D - 1, alpha, beta, Tile.WHITE, entry.getKey()).heuristic;
+                if(V > chosenHeuristic){
+                    V = chosenHeuristic;
+                    bestMove = entry.getKey();
+                }
+
+                beta = Math.max(alpha, V);
+                if (beta <= alpha) {
                     break;
+                }
             }
-            N.setHeuristicValue(V);
-            return V;
         }
+        return new MinimaxMove(bestMove, V);
     }
     
     
     
-    private Moves.Move getMoveAfterAlphaBeta(Graph N,Tile player) {
-        Moves.Move bestMove = null;
-        Map<Moves.Move, Graph> movesMap = Moves.allMoves(N, player);    	
-        
-    	if (player.isWhite()) {
-            int max = Integer.MIN_VALUE;
-
-            for (Map.Entry<Moves.Move, Graph> entry : movesMap.entrySet()) {
-                if (max < entry.getValue().getHeuristicValue()) {
-                    max = (int) entry.getValue().getHeuristicValue();
-                    bestMove = entry.getKey();
-                }
-            }
-            System.out.print("best move:" +  bestMove.toString());
-            return bestMove;
-    	} else {
-            int min = Integer.MAX_VALUE;
-            for (Map.Entry<Moves.Move, Graph> entry : movesMap.entrySet()) {
-                if (min > entry.getValue().getHeuristicValue()) {
-                	min = (int) entry.getValue().getHeuristicValue();
-                    bestMove = entry.getKey();
-                }
-            }
-            System.out.print("best move:" +  bestMove.toString());
-            return bestMove;
-    	}
-
-    } // end of getMoveAfterAlphaBeta
+//    private Moves.Move getMoveAfterAlphaBeta(Graph N,Tile player) {
+//        Moves.Move bestMove = null;
+//        Map<Moves.Move, Graph> movesMap = Moves.allMoves(N, player);
+//
+//    	if (player.isWhite()) {
+//            int max = Integer.MIN_VALUE;
+//
+//            for (Map.Entry<Moves.Move, Graph> entry : movesMap.entrySet()) {
+//                if (max < entry.getValue().getHeuristicValue()) {
+//                    max = (int) entry.getValue().getHeuristicValue();
+//                    bestMove = entry.getKey();
+//                }
+//            }
+//            System.out.print("best move white: " +  bestMove.toString() + " heuristic: " + max);
+//            return bestMove;
+//    	} else {
+//            int min = Integer.MAX_VALUE;
+//            for (Map.Entry<Moves.Move, Graph> entry : movesMap.entrySet()) {
+//                if (min > entry.getValue().getHeuristicValue()) {
+//                	min = (int) entry.getValue().getHeuristicValue();
+//                    bestMove = entry.getKey();
+//                }
+//            }
+//            System.out.print("best move black: " +  bestMove.toString() + " heuristic: " + min);
+//            return bestMove;
+//    	}
+//
+//    } // end of getMoveAfterAlphaBeta
 
     
     public Moves.Move performAlphaBeta(Graph node,Tile player, int depth) {
-        AlphaBeta(node, depth, Integer.MIN_VALUE, Integer.MAX_VALUE, player);
-        Moves.Move move = getMoveAfterAlphaBeta(node,player);
-        return move;
+        MinimaxMove chosenOne = AlphaBeta(node, depth, Integer.MIN_VALUE, Integer.MAX_VALUE, player, null);
+        return chosenOne.move;
     }
 
 
