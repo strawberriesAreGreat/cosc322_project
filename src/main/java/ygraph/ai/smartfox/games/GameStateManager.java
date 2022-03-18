@@ -174,38 +174,21 @@ public class GameStateManager{
 	 * @return An Map containing movement information
 	 */
 	public Map<String, Object> makeMove() throws InterruptedException {
-		//Generate a list of all possible legal moves from the current game state
-		
-//		movesMap = Moves.allMoves(currentState, player);
-//
-//		float bestHeuristic = player.isWhite() ? Integer.MIN_VALUE : Integer.MAX_VALUE;
-//		Moves.Move bestMove = null;
-//
-//		//Calculate the best move using the heuristic T calculation
-//		for (Map.Entry<Moves.Move, Graph> entry : movesMap.entrySet()) {
-//			float h = Heuristic.calculateT(entry.getValue(), player);
-//
-//			if ((player.isWhite() && h > bestHeuristic) || (player.isBlack() && h < bestHeuristic)) {
-//				bestHeuristic = h;
-//				bestMove = entry.getKey();
-//			}
-//		}
 
 		movesMap = Moves.allMoves(currentState, player);
 		
 		System.out.println("current branch factor:" + movesMap.size());
-		SearchTree alphabeta = new SearchTree();
-		Graph tempState = Graph.copy(currentState);
-		Moves.Move bestMove;
-		if (movesMap.size() > 500)
-		{
-			bestMove = alphabeta.performAlphaBeta(tempState, player,1);
-		} else {
-			bestMove = alphabeta.performAlphaBeta(tempState, player,2);
+
+		int depth = 1;
+		for(int i = 10; i > 0; i--){
+			if(Math.pow(movesMap.size(), i) < 250000){
+				depth = i;
+				break;
+			}
 		}
 
-		
-		
+		Moves.Move bestMove = SearchTree.performAlphaBeta(Graph.copy(currentState), player, depth);
+
 		//No move was found, we lost.
 		if(bestMove == null) {
 			System.out.println("##### WE LOST #####");

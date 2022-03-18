@@ -20,7 +20,7 @@ public class SearchTree {
      * SearchTree constructor
      * @param node: a SearchTreeNode to be added to the SearchTree
      */
-    public SearchTree() {
+    private SearchTree() {
  
     }
 
@@ -33,10 +33,9 @@ public class SearchTree {
      * @param D: the depth we are evaluating at
      * @param alpha: an Integer storing negative infinity, we attempt to maximize this in the function
      * @param beta: an Integer storing positive infinity, we attempt to minimize this in the function
-     * @param maxPlayer: boolean indicating whether or not we're attempting to maximize alpha
      * @return: an int representing the weighting of the move
      */
-    private MinimaxMove AlphaBeta(Graph N, int D, float alpha, float beta, Tile player, Moves.Move lastMove) {
+    private static MinimaxMove AlphaBeta(Graph N, int D, float alpha, float beta, Tile player, Moves.Move lastMove) {
         if (D == 0 ) {
           float hval = Heuristic.calculateT(N, player);
           return new MinimaxMove(lastMove, hval);
@@ -116,7 +115,7 @@ public class SearchTree {
 //    } // end of getMoveAfterAlphaBeta
 
     
-    public Moves.Move performAlphaBeta(Graph node,Tile player, int depth) {
+    public static Moves.Move performAlphaBeta(Graph node,Tile player, int depth) {
         MinimaxMove chosenOne = AlphaBeta(node, depth, Integer.MIN_VALUE, Integer.MAX_VALUE, player, null);
         return chosenOne.move;
     }
