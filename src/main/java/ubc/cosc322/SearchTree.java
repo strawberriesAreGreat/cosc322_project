@@ -16,10 +16,6 @@ public class SearchTree {
     public int evaluation;
     private ArrayList<Node> frontier = new ArrayList<>();
 
-    /**
-     * SearchTree constructor
-     * @param node: a SearchTreeNode to be added to the SearchTree
-     */
     private SearchTree() {
  
     }
@@ -28,12 +24,14 @@ public class SearchTree {
 
 
     /**
-     * AlphaBeta: performs AlphaBeta search on a Node
-     * @param N: the root Node to be evaluated
-     * @param D: the depth we are evaluating at
-     * @param alpha: an Integer storing negative infinity, we attempt to maximize this in the function
-     * @param beta: an Integer storing positive infinity, we attempt to minimize this in the function
-     * @return: an int representing the weighting of the move
+     *
+     * @param N
+     * @param D depth
+     * @param alpha
+     * @param beta
+     * @param player
+     * @param lastMove
+     * @return
      */
     private static MinimaxMove AlphaBeta(Graph N, int D, float alpha, float beta, Tile player, Moves.Move lastMove) {
         if (D == 0 ) {

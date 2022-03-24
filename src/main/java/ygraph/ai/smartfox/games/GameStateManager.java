@@ -63,6 +63,7 @@ public class GameStateManager{
 
 	}
 
+	private static final int NODE_LIMIT = 250000;
 	private static final int ROW_LENGTH = 10;
 	private static final int[][] INITIAL_BOARD_STATE = {
 
@@ -176,16 +177,16 @@ public class GameStateManager{
 	public Map<String, Object> makeMove() throws InterruptedException {
 
 		movesMap = Moves.allMoves(currentState, player);
-		
-		System.out.println("current branch factor:" + movesMap.size());
 
 		int depth = 1;
 		for(int i = 10; i > 0; i--){
-			if(Math.pow(movesMap.size(), i) < 250000){
+			if(Math.pow(movesMap.size(), i) < NODE_LIMIT){
 				depth = i;
 				break;
 			}
 		}
+
+		System.out.println("Searching depth: " + depth);
 
 		Moves.Move bestMove = SearchTree.performAlphaBeta(Graph.copy(currentState), player, depth);
 
