@@ -28,17 +28,10 @@ public class Moves {
 
                 while(next!=null){
 
-                    //Add state where player shot where they moved from
-                    Graph moveStateArrowAtCurrentIndex = Graph.copy(g);
-                    Move moveArrowAtCurrentIndex = new Move(current.getIndex(), next.getNode().getIndex(), current.getIndex());
-                    moveStateArrowAtCurrentIndex.updateGraph(moveArrowAtCurrentIndex, player);
-
-                    moveMap.put(moveArrowAtCurrentIndex, moveStateArrowAtCurrentIndex);
-
                     //Check all possible arrow shows in each direction
                     for(Graph.Edge.Direction arrowDir : Graph.Edge.Direction.values()){
 
-                        Graph.Edge arrow = next.getNode().getEdgeInDirection(arrowDir);
+                        Graph.Edge arrow = next.getNode().getEdgeInDirectionIgnoreStart(arrowDir, current);
 
                         while(arrow!=null){
 
@@ -49,7 +42,7 @@ public class Moves {
 
                             moveMap.put(move, moveState);
 
-                            arrow = arrow.getNode().getEdgeInDirection(arrowDir);
+                            arrow = arrow.getNode().getEdgeInDirectionIgnoreStart(arrowDir, current);
                         }
                     }
                     next = next.getNode().getEdgeInDirection(nextDir);

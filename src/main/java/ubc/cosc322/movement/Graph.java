@@ -373,6 +373,16 @@ public class Graph {
             return null;
         }
 
+        public Edge getEdgeInDirectionIgnoreStart(Edge.Direction dir, Node start){
+            for(Edge e : edges){
+                if (
+                        (e.getDirection() == dir && e.enabled) ||
+                        (e.getDirection() == dir && e.getNode().equals(start))
+                ) return e;
+            }
+            return null;
+        }
+
         public int getIndex(){ return index; }
 
         public boolean isEmpty(){

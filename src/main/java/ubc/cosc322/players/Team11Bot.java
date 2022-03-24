@@ -119,13 +119,7 @@ public class Team11Bot extends GamePlayer{
     }
     
     private void move(){
-		Map<String, Object> moveDetails = Collections.emptyMap();
-		try {
-			moveDetails = gameStateManager.makeMove();
-		} catch (InterruptedException e){
-			e.printStackTrace();
-			System.exit(1);
-		}
+		Map<String, Object> moveDetails = gameStateManager.makeMove();
 
 		if(!moveDetails.isEmpty()){
 			gameGui.updateGameState(moveDetails);
