@@ -182,7 +182,12 @@ public class GameStateManager{
 
 		Moves.Move bestMove = SearchTree.performAlphaBeta(Graph.copy(currentState), player, depth);
 
+		//Double check there aren't any possible moves whatsoever
 		if(bestMove == null) {
+			bestMove = SearchTree.performAlphaBeta(Graph.copy(currentState), player, 1);
+		}
+
+		if(bestMove == null){
 			return Collections.emptyMap();
 		}
 
