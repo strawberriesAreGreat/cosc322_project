@@ -1,9 +1,8 @@
-package ygraph.ai.smartfox.games;
+package ubc.cosc322;
 
-import ubc.cosc322.Graph;
-import ubc.cosc322.Moves;
-import ubc.cosc322.SearchTree;
-import ubc.cosc322.heuristics.Heuristic;
+import ubc.cosc322.movement.Graph;
+import ubc.cosc322.movement.Moves;
+import ubc.cosc322.movement.SearchTree;
 import ygraph.ai.smartfox.games.amazons.AmazonsGameMessage;
 
 import java.util.*;
@@ -78,14 +77,13 @@ public class GameStateManager{
 			{0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
 			{0, 0, 0, 1, 0, 0, 1, 0, 0, 0},
 	};
-	
-	
 
 	public static int[][] getInitialBoardState(){
 		return INITIAL_BOARD_STATE;
 	}
 
 	private Tile player;
+
 	public void setPlayer(Tile p){
 		if(p.isPlayer()){
 			player = p;
@@ -98,29 +96,6 @@ public class GameStateManager{
 	public GameStateManager(){
 		currentState = new Graph(INITIAL_BOARD_STATE);
 		movesMap = new HashMap<>();
-
-		//Create minimax tree from initial board state
-
-	}
-
-	public static void timer() {
-		// already a class for this
-		// creates new instance of timer and sets a time limit
-		int timeLimit = 20000;
-		Timer time = new Timer();
-		
-		
-		// timer that should make the move in 20 seconds
-		time.schedule(new TimerTask() {
-			@Override
-			public void run() {
-				// make moves during this time (call MakeMove method)
-			}
-			
-		}, timeLimit);
-		
-		// cancels the timer once finished
-		time.cancel();	
 	}
 
 	// Takes the message Details that are stored in the array and retrieves the position of:
@@ -140,7 +115,7 @@ public class GameStateManager{
 		return (ROW_LENGTH - arrow.get(0)) * ROW_LENGTH + (arrow.get(1)-1);
 	}
 
-	public static ArrayList<Integer> indexToArrayList(int index){
+	public static List<Integer> indexToArrayList(int index){
 		ArrayList<Integer> list = new ArrayList<>(2);
 		//Y Position
 		list.add((int) Math.ceil(ROW_LENGTH - ((float) index/ROW_LENGTH)));
@@ -149,8 +124,6 @@ public class GameStateManager{
 		return list;
 	}
 
-
-	//TODO Rework the following methods to interact with the minimax tree
 
 	/**
 	 * Takes information from the opponents move and updates the board state graph accordingly
@@ -174,7 +147,7 @@ public class GameStateManager{
 	 * Calculates the best possible move from the current state of the board.
 	 * @return An Map containing movement information
 	 */
-	public Map<String, Object> makeMove() throws InterruptedException {
+	public Map<String, Object> makeMove() {
 
 		movesMap = Moves.allMoves(currentState, player);
 
@@ -204,7 +177,6 @@ public class GameStateManager{
 
 		//Don't forget to update the current state of the game!
 		currentState = movesMap.get(bestMove);
-//		Thread.sleep(3000);
 
 		return playerMove;
 	}

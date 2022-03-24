@@ -1,6 +1,7 @@
-package ubc.cosc322;
+package ubc.cosc322.movement;
 
-import ygraph.ai.smartfox.games.GameStateManager;
+import ubc.cosc322.GameStateManager;
+import ubc.cosc322.movement.Graph;
 
 import java.util.*;
 
@@ -84,9 +85,9 @@ public class Moves {
         public String toString(){
             StringBuilder sb = new StringBuilder();
 
-            ArrayList<Integer> curr = GameStateManager.indexToArrayList(currentIndex);
-            ArrayList<Integer> next = GameStateManager.indexToArrayList(nextIndex);
-            ArrayList<Integer> arrow = GameStateManager.indexToArrayList(arrowIndex);
+            List<Integer> curr = GameStateManager.indexToArrayList(currentIndex);
+            List<Integer> next = GameStateManager.indexToArrayList(nextIndex);
+            List<Integer> arrow = GameStateManager.indexToArrayList(arrowIndex);
 
             sb.append("QCurr: [").append(curr.get(0)).append(", ").append(toLetter(curr.get(1))).append("]\n");
             sb.append("QNext: [").append(next.get(0)).append(", ").append(toLetter(next.get(1))).append("]\n");

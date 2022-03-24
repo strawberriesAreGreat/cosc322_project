@@ -1,8 +1,10 @@
 
-package ubc.cosc322;
+package ubc.cosc322.players;
 
 import java.util.ArrayList;
 import java.util.Map;
+
+import ubc.cosc322.GameStateManager;
 import ygraph.ai.smartfox.games.*;
 import ygraph.ai.smartfox.games.amazons.AmazonsGameMessage;
 
@@ -12,7 +14,7 @@ import ygraph.ai.smartfox.games.amazons.AmazonsGameMessage;
  * Jan 5, 2021
  *
  */
-public class COSC322Test extends GamePlayer{
+public class Team11Bot extends GamePlayer{
 
     private GameClient gameClient = null; 
     private BaseGameGUI gameGui = null;
@@ -27,7 +29,7 @@ public class COSC322Test extends GamePlayer{
      * @param args for name and passwd (current, any string would work)
      */
     public static void main(String[] args) {				 
-    	COSC322Test bot = new COSC322Test(args[0], args[1]);
+    	Team11Bot bot = new Team11Bot(args[0], args[1]);
     	
     	if(bot.getGameGUI() == null) {
     		bot.Go();
@@ -43,7 +45,7 @@ public class COSC322Test extends GamePlayer{
      * @param userName
       * @param passwd
      */
-    public COSC322Test(String userName, String passwd) {
+    public Team11Bot(String userName, String passwd) {
     	this.userName = userName;
     	this.passwd = passwd;
     	
@@ -72,12 +74,6 @@ public class COSC322Test extends GamePlayer{
 
     @Override
     public boolean handleGameMessage(String messageType, Map<String, Object> msgDetails) {
-    	//This method will be called by the GameClient when it receives a game-related message
-    	//from the server.
-	
-    	//For a detailed description of the message types and format, 
-    	//see the method GamePlayer.handleGameMessage() in the game-client-api document.
-
 		switch (messageType) {
 			case GameMessage.GAME_STATE_BOARD -> gameGui.setGameState((ArrayList<Integer>) msgDetails.get(AmazonsGameMessage.GAME_STATE));
 			case GameMessage.GAME_ACTION_MOVE ->  {
@@ -88,14 +84,10 @@ public class COSC322Test extends GamePlayer{
 				gameStateManager.opponentMove(msgDetails);
 
 				//Make our move
-				try {
-					Map<String, Object> moveDetails = gameStateManager.makeMove();
-					gameGui.updateGameState(moveDetails);
-					gameClient.sendMoveMessage(moveDetails);
-				} catch (InterruptedException e){
-					e.printStackTrace();
-					return false;
-				}
+				Map<String, Object> moveDetails = gameStateManager.makeMove();
+				gameGui.updateGameState(moveDetails);
+				gameClient.sendMoveMessage(moveDetails);
+
 			}
 			case GameMessage.GAME_ACTION_START -> {
 
@@ -105,14 +97,11 @@ public class COSC322Test extends GamePlayer{
 					gameStateManager.setPlayer(GameStateManager.Tile.WHITE);
 
 					//Make our move
-					try {
-						Map<String, Object> moveDetails = gameStateManager.makeMove();
-						gameGui.updateGameState(moveDetails);
-						gameClient.sendMoveMessage(moveDetails);
-					} catch (InterruptedException e){
-						e.printStackTrace();
-						return false;
-					}
+
+					Map<String, Object> moveDetails = gameStateManager.makeMove();
+					gameGui.updateGameState(moveDetails);
+					gameClient.sendMoveMessage(moveDetails);
+
 
 				} else {
 					gameStateManager.setPlayer(GameStateManager.Tile.BLACK);
@@ -121,9 +110,6 @@ public class COSC322Test extends GamePlayer{
 			default -> System.out.println("Unhandled message type.");
 		}
 
-		System.out.println("MSG Type:" + messageType);
-		System.out.println("MSG Details: " + msgDetails);
-    	    	
     	return true;
     }
     

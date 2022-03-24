@@ -1,7 +1,7 @@
-package ubc.cosc322.heuristics;
+package ubc.cosc322.movement.heuristics;
 
-import ubc.cosc322.Graph;
-import ygraph.ai.smartfox.games.GameStateManager;
+import ubc.cosc322.movement.Graph;
+import ubc.cosc322.GameStateManager;
 
 import java.util.*;
 
