@@ -5,6 +5,7 @@ import ubc.cosc322.movement.heuristics.Distance;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.logging.Logger;
 
 public class Graph {
 
@@ -68,10 +69,6 @@ public class Graph {
         Node currNode = nodes.get(move.currentIndex());
         Node arrowNode = nodes.get(move.arrowIndex());
         Node nextNode = nodes.get(move.nextIndex());
-        if(currNode.value != player || !nextNode.isEmpty() || (!arrowNode.isEmpty() && arrowNode.index != currNode.index)){
-            System.out.println("##### ILLEGAL MOVE #####");
-            System.exit(1);
-        }
 
         //Set current to empty
         currNode.setValue(GameStateManager.Tile.EMPTY);
@@ -178,7 +175,6 @@ public class Graph {
 
     private void addEdge(Node n1, Node n2, Edge.Direction direction, boolean enabled){
         if(n1.edges.size() == 8){
-            System.out.println(n1 + " TOO MANY EDGES!!");
             return;
         }
         n1.edges.add(new Edge(n2, direction, enabled));

@@ -3,6 +3,7 @@ package ubc.cosc322.players;
 
 import java.util.ArrayList;
 import java.util.Map;
+import java.util.logging.Logger;
 
 import ubc.cosc322.GameStateManager;
 import ygraph.ai.smartfox.games.*;
@@ -16,9 +17,11 @@ import ygraph.ai.smartfox.games.amazons.AmazonsGameMessage;
  */
 public class Team11Bot extends GamePlayer{
 
+	private final Logger logger;
+
     private GameClient gameClient = null; 
     private BaseGameGUI gameGui = null;
-	private GameStateManager gameStateManager;
+	private final GameStateManager gameStateManager;
 
     private String userName = null;
     private String passwd = null;
@@ -46,7 +49,10 @@ public class Team11Bot extends GamePlayer{
       * @param passwd
      */
     public Team11Bot(String userName, String passwd) {
-    	this.userName = userName;
+
+		logger = Logger.getLogger(GameStateManager.class.toString());
+
+		this.userName = userName;
     	this.passwd = passwd;
     	
     	//To make a GUI-based player, create an instance of BaseGameGUI
@@ -61,10 +67,7 @@ public class Team11Bot extends GamePlayer{
 
     @Override
     public void onLogin() {
-		System.out.println("Congratualations!!! "
-				+ "I am called because the server indicated that the login is successfully");
-		System.out.println("The next step is to find a room and join it: "
-				+ "the gameClient instance created in my constructor knows how!");
+		logger.info("Login Successful.");
 
 		userName = getGameClient().getUserName();
 		if(gameGui != null){
@@ -84,9 +87,7 @@ public class Team11Bot extends GamePlayer{
 				gameStateManager.opponentMove(msgDetails);
 
 				//Make our move
-				Map<String, Object> moveDetails = gameStateManager.makeMove();
-				gameGui.updateGameState(moveDetails);
-				gameClient.sendMoveMessage(moveDetails);
+				move();
 
 			}
 			case GameMessage.GAME_ACTION_START -> {
@@ -94,26 +95,40 @@ public class Team11Bot extends GamePlayer{
 				//Make a move if the bot starts as white
 				String white = (String) msgDetails.get(AmazonsGameMessage.PLAYER_WHITE);
 				if(white.equalsIgnoreCase(userName)){
+
+					logger.info("Playing as white.");
 					gameStateManager.setPlayer(GameStateManager.Tile.WHITE);
 
 					//Make our move
-
-					Map<String, Object> moveDetails = gameStateManager.makeMove();
-					gameGui.updateGameState(moveDetails);
-					gameClient.sendMoveMessage(moveDetails);
+					move();
 
 
 				} else {
+					logger.info("Playing as black.");
 					gameStateManager.setPlayer(GameStateManager.Tile.BLACK);
 				}
 			}
-			default -> System.out.println("Unhandled message type.");
+			default -> {
+				String msg = "Unhandled Message Type occurred: " + messageType;
+				logger.warning(msg);
+			}
 		}
 
     	return true;
     }
     
-    
+    private void move(){
+		Map<String, Object> moveDetails = gameStateManager.makeMove();
+
+		if(!moveDetails.isEmpty()){
+			gameGui.updateGameState(moveDetails);
+			gameClient.sendMoveMessage(moveDetails);
+		}else {
+			logger.severe("No move found. We've lost.");
+		}
+	}
+
+
     @Override
     public String userName() {
     	return userName;

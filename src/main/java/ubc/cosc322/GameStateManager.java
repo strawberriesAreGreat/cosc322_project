@@ -6,6 +6,7 @@ import ubc.cosc322.movement.SearchTree;
 import ygraph.ai.smartfox.games.amazons.AmazonsGameMessage;
 
 import java.util.*;
+import java.util.logging.Logger;
 
 
 public class GameStateManager{
@@ -83,17 +84,23 @@ public class GameStateManager{
 	}
 
 	private Tile player;
+	private Tile opponent;
 
 	public void setPlayer(Tile p){
 		if(p.isPlayer()){
 			player = p;
+			opponent = p.isWhite() ? Tile.BLACK : Tile.WHITE;
 		}
 	}
+
+	private final Logger logger;
 
 	private Graph currentState;
 	private Map<Moves.Move, Graph> movesMap;
 
 	public GameStateManager(){
+		logger = Logger.getLogger(GameStateManager.class.toString());
+
 		currentState = new Graph(INITIAL_BOARD_STATE);
 		movesMap = new HashMap<>();
 	}
@@ -135,11 +142,21 @@ public class GameStateManager{
 		int nextIndex = getQueenNextIndex(opponentMove);
 		int arrowIndex = getArrowIndex(opponentMove);
 
+		Moves.Move move = new Moves.Move(currentIndex, nextIndex, arrowIndex);
+
+		//Check validity
+		movesMap = Moves.allMoves(currentState, opponent);
+		if(!movesMap.containsKey(move)){
+			String msg = (opponent.isWhite() ? "White " : "Black ") +
+					"has made an illegal move.";
+			logger.severe(msg);
+		}
+
 		//Update the graph
 		if(player.isWhite())
-			currentState.updateGraph(new Moves.Move(currentIndex, nextIndex, arrowIndex), Tile.BLACK);
+			currentState.updateGraph(move, Tile.BLACK);
 		else
-			currentState.updateGraph(new Moves.Move(currentIndex, nextIndex, arrowIndex), Tile.WHITE);
+			currentState.updateGraph(move, Tile.WHITE);
 
 	}
 
@@ -159,14 +176,10 @@ public class GameStateManager{
 			}
 		}
 
-		System.out.println("Searching depth: " + depth);
-
 		Moves.Move bestMove = SearchTree.performAlphaBeta(Graph.copy(currentState), player, depth);
 
-		//No move was found, we lost.
 		if(bestMove == null) {
-			System.out.println("##### WE LOST #####");
-			System.exit(0);
+			return Collections.emptyMap();
 		}
 
 		//Put the move information into a message details object to send back to the game server
