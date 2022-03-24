@@ -146,6 +146,10 @@ public class GameStateManager{
 
 		//Check validity
 		movesMap = Moves.allMoves(currentState, opponent);
+		if(movesMap.isEmpty()){
+			logger.info("Opponent has no valid moves. We've won!");
+		}
+
 		if(!movesMap.containsKey(move)){
 			String msg = (opponent.isWhite() ? "White " : "Black ") +
 					"has made an illegal move.";

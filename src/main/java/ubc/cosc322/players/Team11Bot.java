@@ -123,6 +123,9 @@ public class Team11Bot extends GamePlayer{
 		if(!moveDetails.isEmpty()){
 			gameGui.updateGameState(moveDetails);
 			gameClient.sendMoveMessage(moveDetails);
+
+			logger.info("Made our move. Waiting on opponent.");
+
 		}else {
 			logger.severe("No move found. We've lost.");
 		}
