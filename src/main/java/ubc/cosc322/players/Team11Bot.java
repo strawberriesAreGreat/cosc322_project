@@ -2,6 +2,7 @@
 package ubc.cosc322.players;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Map;
 import java.util.logging.Logger;
 
@@ -93,19 +94,19 @@ public class Team11Bot extends GamePlayer{
 			case GameMessage.GAME_ACTION_START -> {
 
 				//Make a move if the bot starts as white
-				String white = (String) msgDetails.get(AmazonsGameMessage.PLAYER_WHITE);
-				if(white.equalsIgnoreCase(userName)){
+				String black = (String) msgDetails.get(AmazonsGameMessage.PLAYER_BLACK);
+				if(black.equalsIgnoreCase(userName)){
 
-					logger.info("Playing as white.");
-					gameStateManager.setPlayer(GameStateManager.Tile.WHITE);
+					logger.info("Playing as black.");
+					gameStateManager.setPlayer(GameStateManager.Tile.BLACK);
 
 					//Make our move
 					move();
 
 
 				} else {
-					logger.info("Playing as black.");
-					gameStateManager.setPlayer(GameStateManager.Tile.BLACK);
+					logger.info("Playing as white.");
+					gameStateManager.setPlayer(GameStateManager.Tile.WHITE);
 				}
 			}
 			default -> {
@@ -118,7 +119,13 @@ public class Team11Bot extends GamePlayer{
     }
     
     private void move(){
-		Map<String, Object> moveDetails = gameStateManager.makeMove();
+		Map<String, Object> moveDetails = Collections.emptyMap();
+		try {
+			moveDetails = gameStateManager.makeMove();
+		} catch (InterruptedException e){
+			e.printStackTrace();
+			System.exit(1);
+		}
 
 		if(!moveDetails.isEmpty()){
 			gameGui.updateGameState(moveDetails);

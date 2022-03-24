@@ -241,7 +241,7 @@ public class Graph {
 
     public static class Edge {
 
-        private static Edge copy(Edge source, Node otherCopy){
+        public static Edge copy(Edge source, Node otherCopy){
             return new Edge(otherCopy, source.direction, source.enabled);
         }
 
@@ -297,7 +297,7 @@ public class Graph {
 
     public static class Node {
 
-        private static Node copy(Node source){
+        public static Node copy(Node source){
             Node copy = new Node(source.index, source.value);
             copy.kdist1 = source.kdist1;
             copy.kdist2 = source.kdist2;

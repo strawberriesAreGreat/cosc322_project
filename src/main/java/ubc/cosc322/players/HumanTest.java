@@ -7,7 +7,7 @@ import ygraph.ai.smartfox.games.amazons.HumanPlayer;
 public class HumanTest {
 
     public static void main(String[] args) {
-        GamePlayer human = new Team11Bot("r", "test");
+        GamePlayer human = new HumanPlayer();
 
         if(human.getGameGUI() == null) {
             human.Go();
