@@ -24,6 +24,33 @@ class Test_Moves {
 
 
     @Test
+    void test_allMoves_EdgeCase(){
+        int[][] edgeState = {
+                {0, 0, 0, 3, 0},
+                {0, 3, 3, 2, 0},
+                {0, 1, 0, 0, 0},
+                {0, 0, 0, 2, 0},
+                {1, 0, 3, 3, 0}
+        };
+
+        Graph graph = new Graph(edgeState);
+
+        Moves.Move validMoveWhite1 = new Moves.Move(11, 14, 12);
+        Moves.Move validMoveWhite2 = new Moves.Move(11, 14, 11);
+        Moves.Move validMoveBlack1 = new Moves.Move(18, 17, 19);
+        Moves.Move validMoveBlack2 = new Moves.Move(18, 17, 18);
+
+        Map<Moves.Move, Graph> moveMapWhite = Moves.allMoves(graph, GameStateManager.Tile.WHITE);
+        Map<Moves.Move, Graph> moveMapBlack = Moves.allMoves(graph, GameStateManager.Tile.BLACK);
+
+        Assertions.assertTrue(moveMapWhite.containsKey(validMoveWhite1));
+        Assertions.assertTrue(moveMapWhite.containsKey(validMoveWhite2));
+        Assertions.assertTrue(moveMapBlack.containsKey(validMoveBlack1));
+        Assertions.assertTrue(moveMapBlack.containsKey(validMoveBlack2));
+    }
+
+
+    @Test
     void test_allMoves_invalidMoves(){
 
         int [][] board = {
