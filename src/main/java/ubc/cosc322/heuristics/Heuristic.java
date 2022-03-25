@@ -10,12 +10,13 @@ public class Heuristic {
     }
 
     public static float calculateT(Graph board, GameStateManager.Tile turn){
-        float w = calculateW(board);
+       
+    	float w = calculateW(board);
 
-        float f1 = function1(w);
-        float f2 = function2(w);
-        float f3 = function3(w);
-        float f4 = function4(w);
+        float f1 = function1(w,board);
+        float f2 = function2(w,board);
+        float f3 = function3(w,board);
+        float f4 = function4(w,board);
 
         double magnitude = Math.sqrt(f1*f1 + f2*f2 + f3*f3 + f4*f4);
 
@@ -23,9 +24,11 @@ public class Heuristic {
         float t2 = 0;
 
         for(Graph.Node n : board.getNodes()){
+        	
                 if(!n.getValue().isEmpty()) continue;
                 t1 += calculateTi(turn, n.getQdist1(), n.getQdist2());
                 t2 += calculateTi(turn, n.getKdist1(), n.getKdist2());
+                
         }
 
         float c1 = calculateC1(board);
@@ -85,25 +88,65 @@ public class Heuristic {
 
     //Increasingly important during the game
     //Gives good estimates of expected territory shortly before filling phase
-    private static float function1(float w){
-        return w;
+    private static float function1(float w, Graph board){
+ 
+        w = 100; 
+	    for(Graph.Node n : board.getNodes()){
+	       if(!n.getValue().isEmpty()) w--;
+	    }
+	        return w;
     }
 
     //Supports positional play in the opening
     //Smooths transition between the beginning and later phases of the game
-    private static float function2(float w){
-        return w;
-    }
+    private static float function2(float w, Graph board){
+    	
+    	w = 0;
+ 	   
+   	    for(Graph.Node n : board.getNodes()){
+   	       if(!n.getValue().isEmpty()) w++;
+   	    }
+   	    
+   	    w = ((w-60)/10);
+   	    w *= w; 
+   	    w *= (-1);
+   	    w += 40; 
+   	    return w;
+	        
+    	}
+    	
+
+        
+  
 
     //Supports positional play in the opening
     //Smooths transition between the beginning and later phases of the game
-    private static float function3(float w){
-        return w;
+    private static float function3(float w, Graph board){
+
+    	w = 0;
+    	   
+   	    for(Graph.Node n : board.getNodes()){
+   	       if(!n.getValue().isEmpty()) w++;
+   	    }
+   	    
+   	    w = ((w-30)/10);
+   	    w *= w; 
+   	    w *= (-1);
+   	    w += 40; 
+   	    return w;
+  
+        
     }
 
     //Most important at the beginning of the game
-    private static float function4 (float w){
-        return w;
+    private static float function4 (float w, Graph board){
+      	
+        w = 0; 
+        for(Graph.Node n : board.getNodes()){
+           if(!n.getValue().isEmpty()) w++;
+        }
+            return w;
+
     }
 
 }

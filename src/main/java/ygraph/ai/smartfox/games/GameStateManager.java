@@ -181,12 +181,13 @@ public class GameStateManager{
 
 		int depth = 1;
 		for(int i = 10; i > 0; i--){
-			if(Math.pow(movesMap.size(), i) < 250000){
+			if(Math.pow(movesMap.size(), i) < 1000000){
 				depth = i;
 				break;
 			}
 		}
 
+		//Moves.Move bestMove = SearchTree.performAlphaBeta(Graph.copy(currentState), player, depth);
 		Moves.Move bestMove = SearchTree.performAlphaBeta(Graph.copy(currentState), player, depth);
 
 		//No move was found, we lost.

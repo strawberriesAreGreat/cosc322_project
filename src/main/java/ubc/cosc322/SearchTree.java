@@ -1,9 +1,17 @@
 package ubc.cosc322;
 
+package local.gpu.aparapi.add;
+
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.Callable;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.Future;
 
 import ubc.cosc322.heuristics.Heuristic;
 import ygraph.ai.smartfox.games.GameStateManager.Tile;
@@ -35,7 +43,7 @@ public class SearchTree {
      * @param beta: an Integer storing positive infinity, we attempt to minimize this in the function
      * @return: an int representing the weighting of the move
      */
-    private static MinimaxMove AlphaBeta(Graph N, int D, float alpha, float beta, Tile player, Moves.Move lastMove) {
+    public static MinimaxMove AlphaBeta(Graph N, int D, float alpha, float beta, Tile player, Moves.Move lastMove) {
         if (D == 0 ) {
           float hval = Heuristic.calculateT(N, player);
           return new MinimaxMove(lastMove, hval);
@@ -44,7 +52,9 @@ public class SearchTree {
         float V;
         Moves.Move bestMove = null;
         Map<Moves.Move, Graph> movesMap = Moves.allMoves(N, player);
-
+        
+        
+        
         if (player.isWhite()) {
 
             V = Integer.MIN_VALUE;
@@ -116,11 +126,15 @@ public class SearchTree {
 
     
     public static Moves.Move performAlphaBeta(Graph node,Tile player, int depth) {
-        MinimaxMove chosenOne = AlphaBeta(node, depth, Integer.MIN_VALUE, Integer.MAX_VALUE, player, null);
-        return chosenOne.move;
+        
+    	
+    	
+    	MinimaxMove chosenOne = AlphaBetaThreads(node, depth, Integer.MIN_VALUE, Integer.MAX_VALUE, player, null);
+        
+    	return chosenOne.move;
     }
 
-
+   
     /**
      * expandFrontier: Depending on if the depth is even or odd, add the successor Nodes
      * If we have an even depth, then we know we are evaluating our nodes
@@ -262,6 +276,133 @@ public class SearchTree {
 //        return bestMove;
 //    } // end of makeMove
 
+    
+    private static  MinimaxMove AlphaBetaThreads(Graph N, int D, float alpha, float beta, Tile player, Moves.Move lastMove) {
+        
+    	if (D == 0 ) {
+          float hval = Heuristic.calculateT(N, player);
+          return new MinimaxMove(lastMove, hval);
+        }
 
+        float V;
+        Moves.Move bestMove = null;
+        Map<Moves.Move, Graph> movesMap = Moves.allMoves(N, player);
+        
+        int threads = 8;
+        int i = 0; 
+        
+        HashMap<Moves.Move, Graph>[] subMaps = new HashMap[threads];
+        MinMaxthread[] threadArray = new MinMaxthread[threads];
+        List<Future> allFutures = new ArrayList<Future>();
+        
+        for(Map.Entry<Moves.Move, Graph> entry : movesMap.entrySet()){
+        	
+        	if(subMaps[i] == null) {
+        		subMaps[i] = new HashMap<Moves.Move, Graph>();
+        	}
+        	
+            subMaps[i].put(entry.getKey(), entry.getValue());
+            if(i<threads-1) {
+            i++;
+            }else {
+            	i = 0;
+            }
+        }
+             
+        ExecutorService service = Executors.newFixedThreadPool(threads);
+        
+        for(int x = 0; x < threads; x ++ ) {
+        	System.out.println(" starting up thread " +x);
 
+        	Future<Object> future = service.submit(new MinMaxthread(subMaps[i],N,D,alpha, beta,player,null));
+        	allFutures.add(future);
+        
+        }
+    	System.out.println("Started all futures");
+        if (player.isWhite()) {
+
+            V = Integer.MIN_VALUE;
+        } else {
+
+            V = Integer.MAX_VALUE;
+        }
+        
+        // now block until all threads return heuristic calculations
+        // for their subMovesMap
+        for(int y = 0; y < threads; y++) {
+        	System.out.println(" Getting " +y +"'s future");
+        	Future<MinMaxthread> future = allFutures.get(y);
+        	System.out.println(" Thread " +y + "  got future!");
+        	try {
+        		
+        		threadArray[i] = future.get();
+        		if (player.isWhite()) {
+	        		if(V < threadArray[i].heuristic){
+	                    V =  threadArray[i].heuristic;
+	                    bestMove =  threadArray[i].bestMove;
+	                }
+	        	  	  alpha = Math.max(alpha, V);
+	                  if (beta <= alpha) {
+	                      break;
+	                  }
+        		}else {
+        			if(V > threadArray[i].heuristic){
+	                    V =  threadArray[i].heuristic;
+	                    bestMove =  threadArray[i].bestMove;
+	                }
+        			  beta = Math.max(alpha, V);
+                      if (beta <= alpha) {
+                          break;
+                      }
+	        	}
+      
+        	}catch(Exception e) {
+        		e.printStackTrace();
+        	}
+        }
+        service.shutdown();
+        return new MinimaxMove(bestMove, V);
+    }
+   
+    
 } // end of SearchTree
+
+
+class MinMaxthread implements Callable<Object>{
+	
+	SearchTree sTree;
+	Graph N;
+	int D; 
+	Float alpha, beta;
+	Tile player;
+	Moves.Move lastMove;
+	Moves.Move bestMove;
+	float heuristic;
+
+
+	MinMaxthread(Map<Moves.Move, Graph> miniMap, Graph N, int D, float alpha, float beta, Tile player, Moves.Move lastMove ){
+
+		this.N = N;
+		this.D = D;
+		this.alpha = alpha;
+		this.beta = beta; 
+		this.player = player;
+		this.lastMove = lastMove; 
+       
+	}
+
+
+	public Object call() throws Exception {
+		 System.out.println(" thread " + Thread.currentThread() + " has started ");
+	       ubc.cosc322.SearchTree.MinimaxMove bestSubMove = SearchTree.AlphaBeta(N,D,alpha,beta,player,lastMove);
+	      
+	       this.heuristic = bestSubMove.heuristic();
+	       this.bestMove = bestSubMove.move();
+		 System.out.println(" thread " + Thread.currentThread() + " is finished ");
+		return this;
+		//.sTree.AlphaBeta(N, D, alpha, beta, player, null).heuristic();
+				
+	}
+	
+	
+}
