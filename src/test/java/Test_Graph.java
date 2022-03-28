@@ -1,9 +1,9 @@
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import ubc.cosc322.Graph;
-import ubc.cosc322.Moves;
-import ygraph.ai.smartfox.games.GameStateManager;
+import ubc.cosc322.movement.Graph;
+import ubc.cosc322.movement.Moves;
+import ubc.cosc322.GameStateManager;
 
 class Test_Graph {
 

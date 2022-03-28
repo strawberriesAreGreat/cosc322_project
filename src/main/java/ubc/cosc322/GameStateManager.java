@@ -1,11 +1,12 @@
-package ygraph.ai.smartfox.games;
+package ubc.cosc322;
 
-import ubc.cosc322.Graph;
-import ubc.cosc322.Moves;
-import ubc.cosc322.heuristics.Heuristic;
+import ubc.cosc322.movement.Graph;
+import ubc.cosc322.movement.Moves;
+import ubc.cosc322.movement.SearchTree;
 import ygraph.ai.smartfox.games.amazons.AmazonsGameMessage;
 
 import java.util.*;
+import java.util.logging.Logger;
 
 
 public class GameStateManager{
@@ -62,6 +63,7 @@ public class GameStateManager{
 
 	}
 
+	private static final int NODE_LIMIT = 250000;
 	private static final int ROW_LENGTH = 10;
 	private static final int[][] INITIAL_BOARD_STATE = {
 
@@ -82,41 +84,25 @@ public class GameStateManager{
 	}
 
 	private Tile player;
+	private Tile opponent;
+
 	public void setPlayer(Tile p){
 		if(p.isPlayer()){
 			player = p;
+			opponent = p.isWhite() ? Tile.BLACK : Tile.WHITE;
 		}
 	}
+
+	private final Logger logger;
 
 	private Graph currentState;
 	private Map<Moves.Move, Graph> movesMap;
 
 	public GameStateManager(){
+		logger = Logger.getLogger(GameStateManager.class.toString());
+
 		currentState = new Graph(INITIAL_BOARD_STATE);
 		movesMap = new HashMap<>();
-
-		//Create minimax tree from initial board state
-
-	}
-
-	public static void timer() {
-		// already a class for this
-		// creates new instance of timer and sets a time limit
-		int timeLimit = 20000;
-		Timer time = new Timer();
-		
-		
-		// timer that should make the move in 20 seconds
-		time.schedule(new TimerTask() {
-			@Override
-			public void run() {
-				// make moves during this time (call MakeMove method)
-			}
-			
-		}, timeLimit);
-		
-		// cancels the timer once finished
-		time.cancel();	
 	}
 
 	// Takes the message Details that are stored in the array and retrieves the position of:
@@ -136,7 +122,7 @@ public class GameStateManager{
 		return (ROW_LENGTH - arrow.get(0)) * ROW_LENGTH + (arrow.get(1)-1);
 	}
 
-	public static ArrayList<Integer> indexToArrayList(int index){
+	public static List<Integer> indexToArrayList(int index){
 		ArrayList<Integer> list = new ArrayList<>(2);
 		//Y Position
 		list.add((int) Math.ceil(ROW_LENGTH - ((float) index/ROW_LENGTH)));
@@ -145,8 +131,6 @@ public class GameStateManager{
 		return list;
 	}
 
-
-	//TODO Rework the following methods to interact with the minimax tree
 
 	/**
 	 * Takes information from the opponents move and updates the board state graph accordingly
@@ -158,11 +142,25 @@ public class GameStateManager{
 		int nextIndex = getQueenNextIndex(opponentMove);
 		int arrowIndex = getArrowIndex(opponentMove);
 
+		Moves.Move move = new Moves.Move(currentIndex, nextIndex, arrowIndex);
+
+		//Check validity
+		movesMap = Moves.allMoves(currentState, opponent);
+		if(movesMap.isEmpty()){
+			logger.info("Opponent has no valid moves. We've won!");
+		}
+
+		if(!movesMap.containsKey(move)){
+			String msg = (opponent.isWhite() ? "White " : "Black ") +
+					"has made an illegal move.";
+			logger.severe(msg);
+		}
+
 		//Update the graph
 		if(player.isWhite())
-			currentState.updateGraph(new Moves.Move(currentIndex, nextIndex, arrowIndex), Tile.BLACK);
+			currentState.updateGraph(move, Tile.BLACK);
 		else
-			currentState.updateGraph(new Moves.Move(currentIndex, nextIndex, arrowIndex), Tile.WHITE);
+			currentState.updateGraph(move, Tile.WHITE);
 
 	}
 
@@ -170,27 +168,27 @@ public class GameStateManager{
 	 * Calculates the best possible move from the current state of the board.
 	 * @return An Map containing movement information
 	 */
-	public Map<String, Object> makeMove() throws InterruptedException {
-		//Generate a list of all possible legal moves from the current game state
+	public Map<String, Object> makeMove() {
+
 		movesMap = Moves.allMoves(currentState, player);
 
-		float bestHeuristic = player.isWhite() ? Integer.MIN_VALUE : Integer.MAX_VALUE;
-		Moves.Move bestMove = null;
-
-		//Calculate the best move using the heuristic T calculation
-		for (Map.Entry<Moves.Move, Graph> entry : movesMap.entrySet()) {
-			float h = Heuristic.calculateT(entry.getValue(), player);
-
-			if ((player.isWhite() && h > bestHeuristic) || (player.isBlack() && h < bestHeuristic)) {
-				bestHeuristic = h;
-				bestMove = entry.getKey();
+		int depth = 1;
+		for(int i = 10; i > 0; i--){
+			if(Math.pow(movesMap.size(), i) < NODE_LIMIT){
+				depth = i;
+				break;
 			}
 		}
 
-		//No move was found, we lost.
+		Moves.Move bestMove = SearchTree.performAlphaBeta(Graph.copy(currentState), player, depth);
+
+		//Double check there aren't any possible moves whatsoever
 		if(bestMove == null) {
-			System.out.println("##### WE LOST #####");
-			System.exit(0);
+			bestMove = SearchTree.performAlphaBeta(Graph.copy(currentState), player, 1);
+		}
+
+		if(bestMove == null){
+			return Collections.emptyMap();
 		}
 
 		//Put the move information into a message details object to send back to the game server
@@ -201,8 +199,6 @@ public class GameStateManager{
 
 		//Don't forget to update the current state of the game!
 		currentState = movesMap.get(bestMove);
-
-		Thread.sleep(3000);
 
 		return playerMove;
 	}

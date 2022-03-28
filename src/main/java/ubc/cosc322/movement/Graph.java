@@ -1,10 +1,11 @@
-package ubc.cosc322;
+package ubc.cosc322.movement;
 
-import ubc.cosc322.heuristics.Distance;
-import ygraph.ai.smartfox.games.GameStateManager;
+import ubc.cosc322.GameStateManager;
+import ubc.cosc322.movement.heuristics.Distance;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.logging.Logger;
 
 public class Graph {
 
@@ -38,6 +39,7 @@ public class Graph {
     private final List<Node> nodes;
     private final int height;
     private final int width;
+    private float heuristicValue;
 
     private Graph(int size, int height, int width){
         this.height = height;
@@ -67,10 +69,6 @@ public class Graph {
         Node currNode = nodes.get(move.currentIndex());
         Node arrowNode = nodes.get(move.arrowIndex());
         Node nextNode = nodes.get(move.nextIndex());
-        if(currNode.value != player || !nextNode.isEmpty() || (!arrowNode.isEmpty() && arrowNode.index != currNode.index)){
-            System.out.println("##### ILLEGAL MOVE #####");
-            System.exit(1);
-        }
 
         //Set current to empty
         currNode.setValue(GameStateManager.Tile.EMPTY);
@@ -177,7 +175,6 @@ public class Graph {
 
     private void addEdge(Node n1, Node n2, Edge.Direction direction, boolean enabled){
         if(n1.edges.size() == 8){
-            System.out.println(n1 + " TOO MANY EDGES!!");
             return;
         }
         n1.edges.add(new Edge(n2, direction, enabled));
@@ -198,6 +195,13 @@ public class Graph {
 
     public List<Node> getNodes(){
         return nodes;
+    }
+    
+    public void setHeuristicValue(float value) {
+        this.heuristicValue = value;
+    }
+    public float getHeuristicValue() {
+        return this.heuristicValue;
     }
 
     @Override
@@ -237,7 +241,7 @@ public class Graph {
 
     public static class Edge {
 
-        private static Edge copy(Edge source, Node otherCopy){
+        public static Edge copy(Edge source, Node otherCopy){
             return new Edge(otherCopy, source.direction, source.enabled);
         }
 
@@ -293,7 +297,7 @@ public class Graph {
 
     public static class Node {
 
-        private static Node copy(Node source){
+        public static Node copy(Node source){
             Node copy = new Node(source.index, source.value);
             copy.kdist1 = source.kdist1;
             copy.kdist2 = source.kdist2;
@@ -365,6 +369,16 @@ public class Graph {
         public Edge getEdgeInDirection(Edge.Direction dir){
             for(Edge e : edges){
                 if (e.getDirection() == dir && e.enabled) return e;
+            }
+            return null;
+        }
+
+        public Edge getEdgeInDirectionIgnoreStart(Edge.Direction dir, Node start){
+            for(Edge e : edges){
+                if (
+                        (e.getDirection() == dir && e.enabled) ||
+                        (e.getDirection() == dir && e.getNode().equals(start))
+                ) return e;
             }
             return null;
         }
