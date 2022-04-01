@@ -178,18 +178,22 @@ public class GameStateManager{
 		movesMap = Moves.allMoves(currentState, player);
 		
 		System.out.println("current branch factor:" + movesMap.size());
-
+		
 		int depth = 1;
+	
 		for(int i = 10; i > 0; i--){
-			if(Math.pow(movesMap.size(), i) < 1000000){
+			if(Math.pow(movesMap.size(), (i)) < 250000){
 				depth = i;
 				break;
 			}
 		}
-
+		
+		if(movesMap.size()<80) {
+			depth +=1;
+		}
 		//Moves.Move bestMove = SearchTree.performAlphaBeta(Graph.copy(currentState), player, depth);
 		Moves.Move bestMove = SearchTree.performAlphaBeta(Graph.copy(currentState), player, depth);
-
+		//System.out.println("Index: " + bestMove.currentIndex() +"\nNextIndex: " +bestMove.nextIndex()+"\narrowIndex: " +bestMove.arrowIndex() );
 		//No move was found, we lost.
 		if(bestMove == null) {
 			System.out.println("##### WE LOST #####");
@@ -204,7 +208,9 @@ public class GameStateManager{
 
 		//Don't forget to update the current state of the game!
 		currentState = movesMap.get(bestMove);
-//		Thread.sleep(3000);
+		System.out.println(currentState);
+//		Thread.sleep(30003);
+
 
 		return playerMove;
 	}

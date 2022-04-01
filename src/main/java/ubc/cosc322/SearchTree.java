@@ -1,7 +1,5 @@
 package ubc.cosc322;
 
-package local.gpu.aparapi.add;
-
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -18,11 +16,13 @@ import ygraph.ai.smartfox.games.GameStateManager.Tile;
 
 public class SearchTree {
 
-
+	static int HEURISTICSCALCULATED = 0;
+	
     private int depth;
     private int numOfMoves;
     public int evaluation;
     private ArrayList<Node> frontier = new ArrayList<>();
+
 
     /**
      * SearchTree constructor
@@ -43,27 +43,39 @@ public class SearchTree {
      * @param beta: an Integer storing positive infinity, we attempt to minimize this in the function
      * @return: an int representing the weighting of the move
      */
-    public static MinimaxMove AlphaBeta(Graph N, int D, float alpha, float beta, Tile player, Moves.Move lastMove) {
-        if (D == 0 ) {
+    public static MinimaxMove AlphaBeta(Map<Moves.Move, Graph> miniMap, Graph N, int D, float alpha, float beta, Tile player, Moves.Move lastMove) {
+       
+    	float V;
+    	
+    	if (D == 0 ) {
+        	HEURISTICSCALCULATED++;
+        	if(HEURISTICSCALCULATED % 10000 == 0) {
+        		System.out.println( Thread.currentThread() +" d " + D + " H " + HEURISTICSCALCULATED );
+        	}
           float hval = Heuristic.calculateT(N, player);
           return new MinimaxMove(lastMove, hval);
         }
 
-        float V;
         Moves.Move bestMove = null;
-        Map<Moves.Move, Graph> movesMap = Moves.allMoves(N, player);
-        
-        
+        Map<Moves.Move, Graph> movesMap;
+        if(miniMap == null) {
+        	 movesMap = Moves.allMoves(N, player);
+        }else {
+        	movesMap = miniMap;
+        }
+      //  System.out.println( Thread.currentThread() +" " + movesMap.size() + " d " + D );
         
         if (player.isWhite()) {
-
-            V = Integer.MIN_VALUE;
-
+        	
+        	V = Integer.MIN_VALUE;
+        
             for (Map.Entry<Moves.Move, Graph> entry : movesMap.entrySet()) {
+            	
+            	
                 Moves.Move currentMove = entry.getKey();
-                float chosenHeuristic = AlphaBeta(entry.getValue(), D - 1, alpha, beta, Tile.BLACK, currentMove).heuristic;
+                float chosenHeuristic = AlphaBeta(null, entry.getValue(), D - 1, alpha, beta, Tile.BLACK, currentMove).heuristic;
                 if(V < chosenHeuristic){
-                    V = chosenHeuristic;
+                	V = chosenHeuristic;
                     bestMove = currentMove;
                 }
 
@@ -75,12 +87,12 @@ public class SearchTree {
 
         } else {
 
-            V = Integer.MAX_VALUE;
-
+        		V = Integer.MAX_VALUE;
+        	
             for (Map.Entry<Moves.Move, Graph> entry : movesMap.entrySet()) {
-                float chosenHeuristic = AlphaBeta(entry.getValue(), D - 1, alpha, beta, Tile.WHITE, entry.getKey()).heuristic;
+                float chosenHeuristic = AlphaBeta(null, entry.getValue(), D - 1, alpha, beta, Tile.WHITE, entry.getKey()).heuristic;
                 if(V > chosenHeuristic){
-                    V = chosenHeuristic;
+                	V = chosenHeuristic;
                     bestMove = entry.getKey();
                 }
 
@@ -93,7 +105,7 @@ public class SearchTree {
         return new MinimaxMove(bestMove, V);
     }
     
-    
+
     
 //    private Moves.Move getMoveAfterAlphaBeta(Graph N,Tile player) {
 //        Moves.Move bestMove = null;
@@ -126,12 +138,11 @@ public class SearchTree {
 
     
     public static Moves.Move performAlphaBeta(Graph node,Tile player, int depth) {
-        
-    	
-    	
-    	MinimaxMove chosenOne = AlphaBetaThreads(node, depth, Integer.MIN_VALUE, Integer.MAX_VALUE, player, null);
-        
+    	  	
+    	MinimaxMove chosenOne = AlphaBetaT(node, depth, Integer.MIN_VALUE, Integer.MAX_VALUE, player, null);
+        System.out.println(chosenOne.move);
     	return chosenOne.move;
+   
     }
 
    
@@ -275,26 +286,27 @@ public class SearchTree {
 //        this.makeMoveOnRoot(bestMove.getQueen(), bestMove.getArrowShot());
 //        return bestMove;
 //    } // end of makeMove
-
-    
-    private static  MinimaxMove AlphaBetaThreads(Graph N, int D, float alpha, float beta, Tile player, Moves.Move lastMove) {
-        
-    	if (D == 0 ) {
-          float hval = Heuristic.calculateT(N, player);
-          return new MinimaxMove(lastMove, hval);
-        }
-
-        float V;
+ public static MinimaxMove AlphaBetaT(Graph N, int D, float alpha, float beta, Tile player, Moves.Move lastMove) {
+	 if (D == 0 ) {
+       float hval = Heuristic.calculateT(N, player);
+       return new MinimaxMove(lastMove, hval);
+     }
+     int threads = 8;
         Moves.Move bestMove = null;
-        Map<Moves.Move, Graph> movesMap = Moves.allMoves(N, player);
-        
-        int threads = 8;
-        int i = 0; 
-        
+        Map<Moves.Move, Graph> movesMap = Moves.allMoves(N, player);       
         HashMap<Moves.Move, Graph>[] subMaps = new HashMap[threads];
         MinMaxthread[] threadArray = new MinMaxthread[threads];
         List<Future> allFutures = new ArrayList<Future>();
+        MinMaxthread tResult = null;
+
         
+        float V = 0;         
+        if (player.isWhite()) 	{ V = Integer.MIN_VALUE; } 
+        else 					{ V = Integer.MAX_VALUE; }
+
+
+        
+        int i = 0; 
         for(Map.Entry<Moves.Move, Graph> entry : movesMap.entrySet()){
         	
         	if(subMaps[i] == null) {
@@ -308,62 +320,48 @@ public class SearchTree {
             	i = 0;
             }
         }
-             
-        ExecutorService service = Executors.newFixedThreadPool(threads);
         
-        for(int x = 0; x < threads; x ++ ) {
-        	System.out.println(" starting up thread " +x);
-
-        	Future<Object> future = service.submit(new MinMaxthread(subMaps[i],N,D,alpha, beta,player,null));
-        	allFutures.add(future);
+	  ExecutorService service = Executors.newFixedThreadPool(threads);
+	        
+	        for(int x = 0; x < threads; x ++ ) {
+	        	//System.out.println(" starting up thread " +x);
+	
+	        	Future<Object> future = service.submit(new MinMaxthread(subMaps[x],N,D,alpha, beta,player,null));
+	        	allFutures.add(future);
+	        
+	    }
+      //  System.out.println( Thread.currentThread() +" " + movesMap.size() + " d " + D );
+	        
+	        
+	   for(int t = 0; t < threads; t++) {
+		   
+		   Future<MinMaxthread> future = allFutures.get(t);
+		   try {
+			   tResult = future.get();
+		   }catch(Exception e) {
+       			e.printStackTrace();
+       	   }
         
-        }
-    	System.out.println("Started all futures");
-        if (player.isWhite()) {
+		   float chosenHeuristic = tResult.heuristic;
+		   
+       
+		   if (player.isWhite() && V < chosenHeuristic ) {
+               
+                	V = chosenHeuristic;
+                    bestMove = tResult.bestMove;
+                     
+		   }else if(V > chosenHeuristic){
 
-            V = Integer.MIN_VALUE;
-        } else {
-
-            V = Integer.MAX_VALUE;
-        }
+                	V = chosenHeuristic;
+                    bestMove = tResult.bestMove;
+                    
+           }
+	   
         
-        // now block until all threads return heuristic calculations
-        // for their subMovesMap
-        for(int y = 0; y < threads; y++) {
-        	System.out.println(" Getting " +y +"'s future");
-        	Future<MinMaxthread> future = allFutures.get(y);
-        	System.out.println(" Thread " +y + "  got future!");
-        	try {
-        		
-        		threadArray[i] = future.get();
-        		if (player.isWhite()) {
-	        		if(V < threadArray[i].heuristic){
-	                    V =  threadArray[i].heuristic;
-	                    bestMove =  threadArray[i].bestMove;
-	                }
-	        	  	  alpha = Math.max(alpha, V);
-	                  if (beta <= alpha) {
-	                      break;
-	                  }
-        		}else {
-        			if(V > threadArray[i].heuristic){
-	                    V =  threadArray[i].heuristic;
-	                    bestMove =  threadArray[i].bestMove;
-	                }
-        			  beta = Math.max(alpha, V);
-                      if (beta <= alpha) {
-                          break;
-                      }
-	        	}
-      
-        	}catch(Exception e) {
-        		e.printStackTrace();
-        	}
-        }
-        service.shutdown();
-        return new MinimaxMove(bestMove, V);
+	   }
+	   service.shutdown();
+       return new MinimaxMove(bestMove, V);
     }
-   
     
 } // end of SearchTree
 
@@ -378,6 +376,7 @@ class MinMaxthread implements Callable<Object>{
 	Moves.Move lastMove;
 	Moves.Move bestMove;
 	float heuristic;
+	Map<Moves.Move, Graph> subMap;
 
 
 	MinMaxthread(Map<Moves.Move, Graph> miniMap, Graph N, int D, float alpha, float beta, Tile player, Moves.Move lastMove ){
@@ -388,19 +387,23 @@ class MinMaxthread implements Callable<Object>{
 		this.beta = beta; 
 		this.player = player;
 		this.lastMove = lastMove; 
+		this.subMap = miniMap;
        
 	}
 
 
 	public Object call() throws Exception {
-		 System.out.println(" thread " + Thread.currentThread() + " has started ");
-	       ubc.cosc322.SearchTree.MinimaxMove bestSubMove = SearchTree.AlphaBeta(N,D,alpha,beta,player,lastMove);
+		// System.out.println(" thread " + Thread.currentThread() + " has started ");
+		
+		 ubc.cosc322.SearchTree.MinimaxMove bestSubMove = SearchTree.AlphaBeta(subMap, N,D,alpha,beta, player ,null);
+
+	       
 	      
 	       this.heuristic = bestSubMove.heuristic();
 	       this.bestMove = bestSubMove.move();
-		 System.out.println(" thread " + Thread.currentThread() + " is finished ");
+		// System.o                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                     ut.println(" thread " + Thread.currentThread() + " is finished ");
 		return this;
-		//.sTree.AlphaBeta(N, D, alpha, beta, player, null).heuristic();
+		
 				
 	}
 	
