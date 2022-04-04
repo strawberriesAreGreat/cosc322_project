@@ -1,12 +1,10 @@
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import ubc.cosc322.Graph;
-import ubc.cosc322.Moves;
-import ygraph.ai.smartfox.games.GameStateManager;
+import ubc.cosc322.GameStateManager;
+import ubc.cosc322.movement.Graph;
+import ubc.cosc322.movement.Moves;
 
-import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 
 class Test_Moves {

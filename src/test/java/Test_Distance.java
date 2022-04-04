@@ -1,6 +1,6 @@
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
-import ubc.cosc322.Graph;
+import ubc.cosc322.movement.Graph;
 
 class Test_Distance {
 
