@@ -146,15 +146,14 @@ public class GameStateManager{
 
 		//Check validity
 		movesMap = Moves.allMoves(currentState, opponent);
-		if(movesMap.isEmpty()){
-			logger.info("Opponent has no valid moves. We've won!");
-		}
 
 		if(!movesMap.containsKey(move)){
 			String msg = (opponent.isWhite() ? "White " : "Black ") +
 					"has made an illegal move.";
 			logger.severe(msg);
 		}
+
+		logger.info("Opponent has made their move. Calculating next move...");
 
 		//Update the graph
 		if(player.isWhite())
@@ -173,7 +172,7 @@ public class GameStateManager{
 		movesMap = Moves.allMoves(currentState, player);
 
 		int depth = 1;
-		for(int i = 10; i > 0; i--){
+		for(int i = 5; i > 0; i--){
 			if(Math.pow(movesMap.size(), i) < NODE_LIMIT){
 				depth = i;
 				break;
@@ -199,6 +198,11 @@ public class GameStateManager{
 
 		//Don't forget to update the current state of the game!
 		currentState = movesMap.get(bestMove);
+
+		movesMap = Moves.allMoves(currentState, opponent);
+		if(movesMap.isEmpty()){
+			logger.info("Opponent has no valid moves. We've won!");
+		}
 
 		return playerMove;
 	}
