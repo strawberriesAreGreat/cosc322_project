@@ -1,4 +1,6 @@
 # cosc322_project
+We came in 2nd Place!!!
+![](./2ndPlace.png)
 
 ## Links 
 https://cmps-people.ok.ubc.ca/yongg/teaching/cosc322/project-and-assignments/cosc322-project.html
